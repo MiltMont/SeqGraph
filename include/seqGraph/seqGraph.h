@@ -1,6 +1,9 @@
 #ifndef __SG_H__
 #define __SG_H__
 
+#define W 600
+#define H 600
+
 #include <libosw/osw.h>
 
 typedef u32 Color;

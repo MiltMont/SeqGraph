@@ -1,8 +1,5 @@
 #include <seqGraph/seqGraph.h>
 
-#define W 600
-#define H 600
-
 Color fBuffer[W * H] = {0};
 Color clearColor;
 

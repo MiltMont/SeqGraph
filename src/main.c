@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
   // Create window and check for errors
-  u32 err = OSW_Init("Game window", 600 * 2, 600 * 2, 0);
+  u32 err = OSW_Init("Game window", W * 2, H * 2, 0);
 
   // Initialize timer
   u32 timer = 0;
