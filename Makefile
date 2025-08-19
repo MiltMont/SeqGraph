@@ -2,7 +2,7 @@ INCLUDE_DIR = ./include
 LIB_DIR = ./lib
 SRCS = $(wildcard ./src/*.c)
 
-LDFLAGS = -I$(INCLUDE_DIR) -L$(LIB_DIR) -lm -ldl -losw -lX11 -lGL
+LDFLAGS = -std=c99 -I$(INCLUDE_DIR) -L$(LIB_DIR) -lm -ldl -losw -lX11 -lGL
 
 
 SeqGraphTest: src/main.c
