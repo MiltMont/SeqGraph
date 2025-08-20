@@ -13,8 +13,8 @@
 /// Types
 typedef float vec3[3];
 typedef float vec4[4];
-typedef float mat3[9];
-typedef float mat4[16];
+typedef float mat3[3][3];
+typedef float mat4[4][4];
 
 /* Vector related functions */
 f32 *vec3_add(vec3 dest, const vec3 v, const vec3 u);
