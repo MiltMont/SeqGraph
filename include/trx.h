@@ -34,7 +34,7 @@ float vec3_mat4Mul(vec3 dest, const mat4 m, vec3 p);
 f32 *vec3_homogenize(vec3 v, float w);
 
 f32 vec4_normalize(vec4 v);
-f32 vec4_mat4Mul(vec4 dest, const mat4 m, vec4 p);
+f32 vec4_matMul(vec4 dest, const mat4 m, vec4 p);
 f32 vec4_homogenize(vec4 v);
 
 /* Matrix related functions */

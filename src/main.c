@@ -13,15 +13,22 @@ int main(int argc, char *argv[]) {
     return err;
   }
 
-  Color background = 0;
+  Color background = 0xfffffffff;
+
+  OSWMouse mouse; 
+
+  OSW_MouseSetPolling(OSW_TRUE);
+  sgSetClearColor(background);
+  sgClearColor();
 
   while (1) {
-    timer += 5;
-    background += 1 + sin(timer);
-
     OSW_Poll();
-    sgSetClearColor(background);
-    sgClearColor();
+    OSW_MouseGetState(&mouse);
+
+    if (OSW_MOUSE_BTN1) {
+      sgPokePixel(mouse.x, mouse.y, 0);
+    }
+
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }

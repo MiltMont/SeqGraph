@@ -12,3 +12,11 @@ void sgClearColor() {
     fBuffer[i] = clearColor;
   }
 }
+
+void sgPokePixel(u32 x,u32 y, Color c) {
+  // printf("%d, %d\n", x, y);
+  fBuffer[W * y + x] = c;
+}
+
+void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h) {
+}

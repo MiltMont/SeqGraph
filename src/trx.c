@@ -89,6 +89,7 @@ void vec3_normalize(vec3 v)
     vec3_smul(v, 1 / norm, v);
 };
 
+/// Matrix-vector multiplication: A(x).
 f32 *vec3_matMul(vec3 dest, const mat3 m, vec3 p)
 {
     for (int i = 0; i < 3; i++)
@@ -98,10 +99,53 @@ f32 *vec3_matMul(vec3 dest, const mat3 m, vec3 p)
     return dest;
 };
 
+/// M((p_x, p_y, p_z, 0))
 f32 *vec3_mat3Mul(vec3 dest, const mat4 m, vec3 p) {
+    vec4 res; 
+    res[0] = p[0];
+    res[1] = p[1];
+    res[2] = p[2];
+    res[3] = 0;
+
+    vec4 ret; 
+
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            ret[i] = m[i][j] * res[j];
+        }
+    }
+
+    dest[0] = ret[0];
+    dest[1] = ret[1];
+    dest[2] = ret[2];
+
+    return dest;
 };
 
-float vec3_mat4Mul(vec3 dest, const mat4 m, vec3 p);
+/// M((p_x, p_y, p_z, 1))
+float vec3_mat4Mul(vec3 dest, const mat4 m, vec3 p) 
+{
+    vec4 res; 
+    res[0] = p[0];
+    res[1] = p[1];
+    res[2] = p[2];
+    res[3] = 0;
+
+    vec4 ret; 
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            ret[i] = m[i][j] * res[j];
+        }
+    }
+
+    dest[0] = ret[0];
+    dest[1] = ret[1];
+    dest[2] = ret[2];
+
+    return ret[3];
+ };
 
 /// w must be greater than zero.
 f32 *vec3_homogenize(vec3 v, float w)
@@ -114,19 +158,38 @@ f32 *vec3_homogenize(vec3 v, float w)
     return v;
 };
 
+f32 vec4_normalize(vec4 v);
+/// Matrix by vector multiplication.
+f32 vec4_matMul(vec4 dest, const mat4 m, vec4 p);
+f32 vec4_homogenize(vec4 v);
+
 // Matrix related functions
 
-void mat4_identity(mat4 m);
+void mat4_identity(mat4 m) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            m[i][j] = (i == j) ? 1 : 0;
+        }
+    }
+}
+
 void mat4_mul(mat4 dest, const mat4 m1, const mat4 m2)
 {
+    mat4 temp; 
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
             for (int k = 0; k < 4; k++)
             {
-                dest[i][j] += m1[i][k] * m2[k][j];
+                temp[i][j] += m1[i][k] * m2[k][j];
             }
         }
     }
+
+    dest = temp;
 }
+
+f32 vec4_normalize(vec4 v) {
+
+};
