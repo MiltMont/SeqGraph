@@ -6,9 +6,6 @@ int main(int argc, char *argv[]) {
   // Create window and check for errors
   u32 err = OSW_Init("Game window", W * 2, H * 2, 0);
 
-  // Initialize timer
-  u32 timer = 0;
-
   if (err != OSW_OK) {
     return err;
   }
@@ -19,16 +16,28 @@ int main(int argc, char *argv[]) {
 
   OSW_MouseSetPolling(OSW_TRUE);
   sgSetClearColor(background);
-  sgClearColor();
+  sgViewport(0,0,W,H);;
+
+  int numPoints = 1000;
+  vec3 points[1000] = {{0.0, 0.0, 0.0}};
+  enum PrimitiveType point = sgPoint;
+
+  f32 timer = 0;
 
   while (1) {
+    timer += 0.05;
+    printf("Time: %f\n", timer);
+
+    sgClearColor();
     OSW_Poll();
     OSW_MouseGetState(&mouse);
 
-    if (OSW_MOUSE_BTN1) {
-      sgPokePixel(mouse.x, mouse.y, 0);
+    for (int i = 0; i < numPoints; i++) {
+      points[i][0] = cos(timer / (i + 1)) / (i + 1);
+      points[i][1] = sin(timer / (i + 1)) / (i + 1);
     }
 
+    sgDrawVertex(point, points, numPoints);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }
