@@ -50,4 +50,15 @@ void mat4_scale(mat4 m, vec3 v);
 void mat4_ortho(mat4 m, float left, float right, float bottom, float top, float near, float far);
 void mat4_perspective(mat4 m, float fovy, float aspect, float znear, float zfar);
 
+// /// Spatial transformations
+
+// f32* mat4Scale(mat4 m, vec3 scaling);
+
+// f32* mat4Rotate(mat4 m, vec3 direction, u32 angle);
+
+// f32* mat4Translate(mat4 m, vec3 translation);
+
+// f32* mat4Orto();
+
+// f32* mat4_perspective();
 #endif /*__TRX_H__*/

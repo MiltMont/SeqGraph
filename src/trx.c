@@ -193,3 +193,60 @@ void mat4_mul(mat4 dest, const mat4 m1, const mat4 m2)
 f32 vec4_normalize(vec4 v) {
 
 };
+
+f32* mat4Scale(mat4 m, vec3 scaling) {
+    mat4 scalingMatrix = {
+        {scaling[0],0,0,0},
+        {0,scaling[1],0,0},
+        {0,0,scaling[2],0},
+        {0,0,0,1}
+    }; 
+
+    vec3 result; 
+
+    vec3_mat3Mul(result, m, scaling);
+    return result;
+}
+
+f32* mat4Rotate(mat4 m, vec3 direction, u32 angle) {
+
+}
+
+f32* mat4Translate(mat4 m, vec3 translation) {
+    mat4 translationMatrix = {
+        {1,0,0,translation[0]},
+        {0,1,0,translation[0]},
+        {0,0,1,translation[0]},
+        {0,0,0,1}
+    };
+
+    vec3 result; 
+    vec3_mat3Mul(result, m, translation);
+
+    return result;
+}
+
+/// Spatial transformations
+void mat4_normalMat(mat3 dest, const mat4 m) {
+
+};
+
+void mat4_translate(mat4 m, vec3 v) {
+    vec3 result;  
+    mat4 translationMatrix = {
+        {1,0,0,v[0]},
+        {0,1,0,v[1]},
+        {0,0,1,v[2]},
+        {0,0,0,1}
+    };
+
+    mat4_mul(m, m, translationMatrix);
+};
+
+void mat4_rotate(mat4 m, vec3 v, float angle);
+void mat4_scale(mat4 m, vec3 v) {
+
+}
+
+void mat4_ortho(mat4 m, float left, float right, float bottom, float top, float near, float far);
+void mat4_perspective(mat4 m, float fovy, float aspect, float znear, float zfar);

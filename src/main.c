@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 
   while (1) {
     timer += 0.05;
-    printf("Time: %f\n", timer);
 
     sgClearColor();
     OSW_Poll();
@@ -37,7 +36,8 @@ int main(int argc, char *argv[]) {
       points[i][1] = sin(timer / (i + 1)) / (i + 1);
     }
 
-    sgDrawVertex(point, points, numPoints);
+    // sgDrawVertex(point, points, numPoints);
+    _sgDrawPoints(&points, 1000);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }
