@@ -14,18 +14,22 @@ void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, W); }
 
 void sgSetClearColor(Color c) { clearColor = c; }
 
-void sgClearColor() {
-  for (int i = 0; i < W * H; i++) {
+void sgClearColor()
+{
+  for (int i = 0; i < W * H; i++)
+  {
     fBuffer[i] = clearColor;
   }
 }
 
-void sgPokePixel(u32 x, u32 y, Color c) {
+void sgPokePixel(u32 x, u32 y, Color c)
+{
   printf("Drawing at (%d, %d)\n", x, y);
   fBuffer[W * y + x] = c;
 }
 
-void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h) {
+void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
+{
   viewPort_x = x_0;
   viewPort_y = y_0;
   viewPort_w = w;
@@ -33,8 +37,10 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h) {
 }
 
 /// Internal function
-void _sgDrawPoints(vec3 *vertex, u32 count) {
-  for (int i = 0; i < count; i++) {
+void _sgDrawPoints(vec3 *vertex, u32 count)
+{
+  for (int i = 0; i < count; i++)
+  {
 
     vec3 current = {vertex[i][0], vertex[i][1]};
     printf("Current point: (%f, %f)\n", current[0], current[1]);
@@ -48,7 +54,8 @@ void _sgDrawPoints(vec3 *vertex, u32 count) {
 
     // Clipping
     if (current[1] > w || current[1] < -w || current[0] > w ||
-        current[0] < -w) {
+        current[0] < -w)
+    {
       printf("BREAK!!! : (%f, %f)\n", current[0], current[1]);
       break;
     }
@@ -76,8 +83,10 @@ void _sgDrawPoints(vec3 *vertex, u32 count) {
   }
 }
 
-void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count) {
-  switch (type) {
+void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
+{
+  switch (type)
+  {
   case sgPoint:
     _sgDrawPoints(vertex, count);
     break;
@@ -86,18 +95,22 @@ void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count) {
   }
 }
 
-void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
+void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer)
+{
   out[0] = vert[0];
   out[1] = vert[1];
   out[2] = vert[2];
   out[3] = 1.0;
 }
 
-void __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer) {
+bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
+{
   f32 tempX = (x_r + 1) / 2;
   f32 tempY = (y_r + 1) / 2;
   color[0] = tempX;
   color[1] = 0.0;
   color[2] = tempY;
   color[3] = 1.0;
+
+  return true;
 }
