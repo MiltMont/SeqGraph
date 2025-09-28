@@ -2,21 +2,20 @@
 #include <math.h>
 #include <seqGraph/seqGraph.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   // Create window and check for errors
   u32 err = OSW_Init("Game window", W * 2, H * 2, 0);
 
-  if (err != OSW_OK) {
+  if (err != OSW_OK)
+  {
     return err;
   }
 
   Color background = 0xfffffffff;
 
-  OSWMouse mouse; 
-
-  OSW_MouseSetPolling(OSW_TRUE);
   sgSetClearColor(background);
-  sgViewport(0,0,W,H);;
+  sgViewport(0, 0, W, H);
 
   int numPoints = 1000;
   vec3 points[1000] = {{0.0, 0.0, 0.0}};
@@ -24,20 +23,20 @@ int main(int argc, char *argv[]) {
 
   f32 timer = 0;
 
-  while (1) {
+  while (1)
+  {
     timer += 0.05;
 
     sgClearColor();
     OSW_Poll();
-    OSW_MouseGetState(&mouse);
 
-    for (int i = 0; i < numPoints; i++) {
+    for (int i = 0; i < numPoints; i++)
+    {
       points[i][0] = cos(timer / (i + 1)) / (i + 1);
       points[i][1] = sin(timer / (i + 1)) / (i + 1);
     }
 
-    // sgDrawVertex(point, points, numPoints);
-    _sgDrawPoints(&points, 1000);
+    _sgDrawPoints(points, 1000);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }
