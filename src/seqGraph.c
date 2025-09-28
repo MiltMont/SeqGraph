@@ -90,15 +90,24 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
   }
 }
 
+void _sgDrawLines(vec3 *vertex, u32 count)
+{
+}
+
+void _sgDrawTriangles(vec3 *vertex, u32 count)
+{
+}
+
 void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
 {
   switch (type)
   {
   case sgPoint:
     _sgDrawPoints(vertex, count);
-    break;
-  default:
-    printf("Not implemented");
+  case sgLine:
+    _sgDrawLines(vertex, count);
+  case sgTriangle:
+    _sgDrawTriangles(vertex, count);
   }
 }
 

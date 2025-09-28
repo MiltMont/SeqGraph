@@ -35,11 +35,16 @@ void sgPokePixel(u32 x, u32 y, Color c);
 /// Sets viewport variables.
 void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h);
 
-/// Internal function
+/// Internal functions
 void _sgDrawPoints(vec3 *vertex, u32 count);
+void _sgDrawLines(vec3 *vertex, u32 count);
+void _sgDrawTriangles(vec3 *vertex, u32 count);
 
-/// Pipeline implementation.
-void sgDrawVertex(enum PrimitiveType type, vec3 *vertex, u32 count);
+/// @brief Graphics pipeline implementation.
+/// @param type This is of type `PrimitiveType`
+/// @param vertex An array of vertices.
+/// @param count The size of the provided vertex array.
+void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count);
 
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer);
 
