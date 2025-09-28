@@ -36,6 +36,19 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
   viewPort_h = h;
 }
 
+/// Utility function
+void perspectiveCorrection(f32 *x, f32 *y, f32 w)
+{
+  x[0] = x[0] / w;
+  x[1] = x[1] / w;
+}
+
+void viewportTransformation(f32 *x, f32 *y)
+{
+  *x = (viewPort_w / 2) * (*x + 1) + viewPort_x;
+  *y = (viewPort_h / 2) * (1 - *y) + viewPort_y;
+}
+
 /// Internal function
 void _sgDrawPoints(vec3 *vertex, u32 count)
 {
@@ -60,13 +73,8 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
       break;
     }
 
-    // Perspective correction
-    current[0] = current[0] / w;
-    current[1] = current[1] / w;
-
-    // Viewport transformation
-    current[0] = (viewPort_w / 2) * (current[0] + 1) + viewPort_x;
-    current[1] = (viewPort_h / 2) * (-current[1] + 1) + viewPort_y;
+    perspectiveCorrection(&current[0], &current[1], w);
+    viewportTransformation(&current[0], &current[1]);
 
     // Fragment shader
     Color finalColor = 0x00000000;
@@ -78,7 +86,6 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
     finalColor |= (u32)(color[1] * 255.0f) << 8;
     finalColor |= (u32)(color[2] * 255.0f) << 16;
 
-    printf("Final color: %f\n", finalColor);
     sgPokePixel(current[0], current[1], finalColor);
   }
 }

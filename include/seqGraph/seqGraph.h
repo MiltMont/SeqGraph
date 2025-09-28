@@ -45,4 +45,9 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer);
 
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer);
 
+/// Utility functions
+void perspectiveCorrection(f32 *x, f32 *y, f32 w);
+
+void viewportTranformation(f32 *x, f32 *y);
+
 #endif // !__SG_H__
