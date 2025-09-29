@@ -1,6 +1,12 @@
 #include <seqGraph/seqGraph.h>
 #include <stdio.h>
 
+#ifdef DEBUG
+#define LOG(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
+#else
+#define LOG(fmt, ...)
+#endif
+
 // Local variables
 u32 viewPort_x;
 u32 viewPort_y;
@@ -24,7 +30,7 @@ void sgClearColor()
 
 void sgPokePixel(u32 x, u32 y, Color c)
 {
-  printf("Drawing at (%d, %d)\n", x, y);
+  LOG("Drawing at: (%d, %d)\n", x, y);
   fBuffer[W * y + x] = c;
 }
 
@@ -56,7 +62,7 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
   {
 
     vec3 current = {vertex[i][0], vertex[i][1]};
-    printf("Current point: (%f, %f)\n", current[0], current[1]);
+    LOG("Current point: (%f, %f)\n", current[0], current[1]);
     vec4 vert;
     Buffer buffer = {0};
 
@@ -69,7 +75,7 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
     if (current[1] > w || current[1] < -w || current[0] > w ||
         current[0] < -w)
     {
-      printf("BREAK!!! : (%f, %f)\n", current[0], current[1]);
+      LOG("Clipped point: (%f, %f)\n", current[0], current[1]);
       break;
     }
 
@@ -120,17 +126,24 @@ int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment *dest)
 
   float xStart = MIN(x0, x1);
   float xEnd = MAX(x0, x1);
-  float yStart = MIN(y0, y1);
-  float yEnd = MAX(y0, y1);
+  float yStart = x0 < x1 ? y0 : y1;
+  float yEnd = x0 < x1 ? y1 : y0;
 
   for (float x = xStart, y = yStart; x < xEnd; x += 1)
   {
-    printf("Current: (%f, %f)\n", x, y);
+    LOG("Current: (%f, %f)\n", x, y);
 
     slope_error += m_new;
     if (slope_error >= 0)
     {
-      y++;
+      if (y0 < y1)
+      {
+        y++;
+      }
+      else
+      {
+        y--;
+      }
       slope_error -= 2 * fabs(x1 - x0);
     }
 
@@ -156,43 +169,42 @@ void _sgDrawLines(vec3 vertex[], u32 count)
     vec4 firstOut;
     vec4 nextOut;
 
-    printf("Current: (%f, %f) - (%f, %f)\n", first[0], first[1], next[0], next[1]);
+    LOG("Current: (%f, %f) - (%f, %f)\n", first[0], first[1], next[0], next[1]);
     // Vertex shader
     __default_vert_shader(firstOut, first, bufferFirst);
     __default_vert_shader(nextOut, next, bufferNext);
     f32 w = firstOut[3];
-    printf("Vertex Shade: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Vertex Shader: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     // Clipping
     if (firstOut[1] > w || firstOut[1] < -w || firstOut[0] > w ||
         firstOut[0] < -w)
     {
-      printf("Break!\n");
+      LOG("Clipped point (%f, %f)", firstOut[0], firstOut[1]);
       break;
     }
-    printf("Clipping: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+
+    LOG("Clipping: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     perspectiveCorrection(&firstOut[0], &firstOut[1], firstOut[3]);
     perspectiveCorrection(&nextOut[0], &nextOut[1], nextOut[3]);
 
-    printf("Perspective: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Perspective: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     viewportTransformation(&firstOut[0], &firstOut[1]);
     viewportTransformation(&nextOut[0], &nextOut[1]);
 
-    printf("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     // Rasterization.
-
     // TODO : Remove magic number.
-    Fragment fragments[1000];
+    Fragment fragments[(int)ceil(sqrt(W * W + H * H))];
     int size = _rasterizeLine(firstOut[0], firstOut[1], nextOut[0], nextOut[1], fragments);
 
-    printf("Completed rasterization stage...\n");
+    LOG("\nCOMPLETED RASTERIZATION STAGE.\n\n", 0);
 
     for (int i = 0; i < size; i++)
     {
-      printf("Drawing (%f, %f)\n", fragments[i][0], fragments[i][1]);
       sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
     }
   }

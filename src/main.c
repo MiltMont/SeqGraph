@@ -17,7 +17,14 @@ int main(int argc, char *argv[])
   sgSetClearColor(background);
   sgViewport(0, 0, W, H);
 
-  vec3 points[] = {{0.0, 0.0, 0.0}, {0.0, 0.5, 0.0}, {0.5, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  vec3 points[] = {
+      {0.0, 0.0, 0.0},
+      {0.0, 0.5, 0.0},
+      {0.5, 0.0, 0.0},
+      {0.0, 0.0, 0.0},
+      {-0.5, 0.0, 0.0},
+      {0.0, 0.5, 0.0},
+  };
 
   f32 timer = 0;
 
@@ -28,7 +35,7 @@ int main(int argc, char *argv[])
     sgClearColor();
     OSW_Poll();
 
-    sgDrawVertex(sgLine, points, 4);
+    sgDrawVertex(sgLine, points, 6);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }
