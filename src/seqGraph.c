@@ -136,7 +136,7 @@ int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment *dest)
     slope_error += m_new;
     if (slope_error >= 0)
     {
-      if (y0 < y1)
+      if (yStart < yEnd)
       {
         y++;
       }
