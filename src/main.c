@@ -17,9 +17,7 @@ int main(int argc, char *argv[])
   sgSetClearColor(background);
   sgViewport(0, 0, W, H);
 
-  int numPoints = 1000;
-  vec3 points[1000] = {{0.0, 0.0, 0.0}};
-  enum PrimitiveType point = sgPoint;
+  vec3 points[] = {{0.0, 0.0, 0.0}, {0.0, 0.5, 0.0}, {0.5, 0.0, 0.0}, {0.0, 0.0, 0.0}};
 
   f32 timer = 0;
 
@@ -30,13 +28,7 @@ int main(int argc, char *argv[])
     sgClearColor();
     OSW_Poll();
 
-    for (int i = 0; i < numPoints; i++)
-    {
-      points[i][0] = cos(timer / (i + 1)) / (i + 1);
-      points[i][1] = sin(timer / (i + 1)) / (i + 1);
-    }
-
-    _sgDrawPoints(points, 1000);
+    sgDrawVertex(sgLine, points, 4);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
   }

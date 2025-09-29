@@ -90,8 +90,112 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
   }
 }
 
-void _sgDrawLines(vec3 *vertex, u32 count)
+int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment *dest)
 {
+  f32 m_new = 2 * fabs(y1 - y0);
+  f32 slope_error = m_new - fabs(x1 - x0);
+  int current = 0;
+
+  if (x0 == x1 && y0 == y1)
+  {
+    dest[current][0] = x0;
+    dest[current][1] = y0;
+
+    return current;
+  }
+
+  if (x0 == x1)
+  {
+    float start = MIN(y0, y1);
+    float end = MAX(y0, y1);
+
+    for (float i = start; i < end; i++)
+    {
+      dest[current][0] = x0;
+      dest[current][1] = i;
+      current += 1;
+    }
+    return current;
+  }
+
+  float xStart = MIN(x0, x1);
+  float xEnd = MAX(x0, x1);
+  float yStart = MIN(y0, y1);
+  float yEnd = MAX(y0, y1);
+
+  for (float x = xStart, y = yStart; x < xEnd; x += 1)
+  {
+    printf("Current: (%f, %f)\n", x, y);
+
+    slope_error += m_new;
+    if (slope_error >= 0)
+    {
+      y++;
+      slope_error -= 2 * fabs(x1 - x0);
+    }
+
+    dest[current][0] = x;
+    dest[current][1] = y;
+    current += 1;
+  }
+
+  return current;
+}
+
+void _sgDrawLines(vec3 vertex[], u32 count)
+{
+  /// Iterate over pairs of points.
+  for (int i = 0; i < count - 1; i++)
+  {
+    vec3 first = {vertex[i][0], vertex[i][1], vertex[i][2]};
+    vec3 next = {vertex[i + 1][0], vertex[i + 1][1], vertex[i + 1][2]};
+
+    Buffer bufferFirst = {0};
+    Buffer bufferNext = {0};
+
+    vec4 firstOut;
+    vec4 nextOut;
+
+    printf("Current: (%f, %f) - (%f, %f)\n", first[0], first[1], next[0], next[1]);
+    // Vertex shader
+    __default_vert_shader(firstOut, first, bufferFirst);
+    __default_vert_shader(nextOut, next, bufferNext);
+    f32 w = firstOut[3];
+    printf("Vertex Shade: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+
+    // Clipping
+    if (firstOut[1] > w || firstOut[1] < -w || firstOut[0] > w ||
+        firstOut[0] < -w)
+    {
+      printf("Break!\n");
+      break;
+    }
+    printf("Clipping: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+
+    perspectiveCorrection(&firstOut[0], &firstOut[1], firstOut[3]);
+    perspectiveCorrection(&nextOut[0], &nextOut[1], nextOut[3]);
+
+    printf("Perspective: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+
+    viewportTransformation(&firstOut[0], &firstOut[1]);
+    viewportTransformation(&nextOut[0], &nextOut[1]);
+
+    printf("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+
+    // Rasterization.
+
+    // TODO : Remove magic number.
+    Fragment fragments[1000];
+    int size = _rasterizeLine(firstOut[0], firstOut[1], nextOut[0], nextOut[1], fragments);
+
+    printf("Completed rasterization stage...\n");
+
+    for (int i = 0; i < size; i++)
+    {
+      printf("Drawing (%f, %f)\n", fragments[i][0], fragments[i][1]);
+      sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
+    }
+  }
 }
 
 void _sgDrawTriangles(vec3 *vertex, u32 count)
