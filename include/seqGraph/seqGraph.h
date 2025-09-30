@@ -44,7 +44,7 @@ void _sgDrawLines(vec3 *vertex, u32 count);
 void _sgDrawTriangles(vec3 *vertex, u32 count);
 
 /// @brief Graphics pipeline implementation.
-/// @param type This is of type `PrimitiveType`
+/// @param type The type of primitive we wish to render.
 /// @param vertex An array of vertices.
 /// @param count The size of the provided vertex array.
 void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count);
@@ -55,10 +55,27 @@ bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer);
 
 /// Utility functions
 void perspectiveCorrection(f32 *x, f32 *y, f32 w);
-
+void perspCorrection(vec3 *P, f32 w);
 void viewportTranformation(f32 *x, f32 *y);
+bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
 
-/// Rasterization functions
-int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment *dest);
+/// @brief This function fills a Fragment array and returns the length of the
+/// resulting array.
+/// @param x0
+/// @param y0
+/// @param x1
+/// @param y1
+/// @param dest
+/// @return
+int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment dest[]);
+
+/// @brief  This function fills a Fragment array and returns the number of
+/// processed fragments.
+/// @param x
+/// @param y
+/// @param z
+/// @param dest
+/// @return
+int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[]);
 
 #endif // !__SG_H__

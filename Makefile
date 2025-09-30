@@ -9,7 +9,7 @@ SeqGraphTest: src/main.c
 	gcc $(SRCS) -o SeqGraphTest $(LDFLAGS)
 
 SeqGraphDebug: src/main.c 
-	gcc $(SRCS) -pedantic -Wall -o SeqGraphDebug $(LDFLAGS) -DDEBUG 
+	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG 
 
 
 .PHONY: test clean debug

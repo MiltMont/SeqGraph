@@ -7,6 +7,18 @@
 #define LOG(fmt, ...)
 #endif
 
+#ifdef DEBUG
+#define LOGV3(NAME, P) fprintf(stderr, "%s=(%f, %f, %f)\n", NAME, P[0], P[1], P[2])
+#else
+#define LOGV3(NAME, P)
+#endif
+
+#ifdef DEBUG
+#define LOGV4(NAME, P) fprintf(stderr, "%s=(%f, %f, %f, %f)\n", NAME, P[0], P[1], P[2], P[3])
+#else
+#define LOGV4(NAME, P)
+#endif
+
 // Local variables
 u32 viewPort_x;
 u32 viewPort_y;
@@ -170,10 +182,13 @@ void _sgDrawLines(vec3 vertex[], u32 count)
     vec4 nextOut;
 
     LOG("Current: (%f, %f) - (%f, %f)\n", first[0], first[1], next[0], next[1]);
+
     // Vertex shader
     __default_vert_shader(firstOut, first, bufferFirst);
     __default_vert_shader(nextOut, next, bufferNext);
+
     f32 w = firstOut[3];
+
     LOG("Vertex Shader: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     // Clipping
@@ -197,12 +212,12 @@ void _sgDrawLines(vec3 vertex[], u32 count)
     LOG("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
 
     // Rasterization.
-    // TODO : Remove magic number.
     Fragment fragments[(int)ceil(sqrt(W * W + H * H))];
     int size = _rasterizeLine(firstOut[0], firstOut[1], nextOut[0], nextOut[1], fragments);
 
     LOG("\nCOMPLETED RASTERIZATION STAGE.\n\n", 0);
 
+    // TODO: Implement fragment shader.
     for (int i = 0; i < size; i++)
     {
       sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
@@ -210,8 +225,117 @@ void _sgDrawLines(vec3 vertex[], u32 count)
   }
 }
 
-void _sgDrawTriangles(vec3 *vertex, u32 count)
+bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y)
 {
+  // TODO: Implement this!
+  return true;
+}
+
+int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
+{
+  int current = 0;
+  LOG("Computing bounding box limits\n", 0);
+  // Getting bounding box limits.
+  f32 xMin = MIN(x[0], MIN(y[0], z[0]));
+  f32 xMax = MAX(x[0], MAX(y[0], z[0]));
+  f32 yMin = MIN(x[1], MIN(y[1], z[1]));
+  f32 yMax = MAX(x[1], MAX(y[1], z[1]));
+
+  LOG("Result: [%f,%f]x[%f,%f]\n", xMin, yMin, xMax, yMax);
+
+  for (int i = xMin; i < xMax; i++)
+  {
+    for (int j = yMin; j < yMax; j++)
+    {
+      if (isInTriangle(x, y, z, i, j))
+      {
+        dest[current][0] = i;
+        dest[current][1] = j;
+        current += 1;
+      }
+    }
+  }
+
+  return current;
+}
+
+void _sgDrawTriangles(vec3 vertex[], u32 count)
+{
+  LOG("Starting triangle drawing\n", 0);
+
+  for (int i = 0; i < count - 2; i++)
+  {
+    vec3 a = {vertex[i][0], vertex[i][1], vertex[i][2]};
+    vec3 b = {vertex[i + 1][0], vertex[i + 1][1], vertex[i + 1][2]};
+    vec3 c = {vertex[i + 2][0], vertex[i + 2][1], vertex[i + 2][2]};
+
+    LOGV3("A", a);
+    LOGV3("B", b);
+    LOGV3("C", c);
+
+    Buffer bufA = {0};
+    Buffer bufB = {0};
+    Buffer bufC = {0};
+
+    vec4 outA;
+    vec4 outB;
+    vec4 outC;
+
+    // Vertex Shader.
+    __default_vert_shader(outA, a, bufA);
+    __default_vert_shader(outB, b, bufB);
+    __default_vert_shader(outC, c, bufC);
+
+    f32 w = outA[3];
+    LOG("Vertex shader results: \n", 0);
+
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    // Clipping
+    // TODO: Clip all points?
+    if (fabs(outA[0]) > w || fabs(outB[1]) > w)
+    {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+
+    LOG("No points clipped\n", 0);
+
+    perspectiveCorrection(&outA[0], &outA[1], w);
+    perspectiveCorrection(&outB[0], &outB[1], w);
+    perspectiveCorrection(&outC[0], &outC[1], w);
+
+    LOG("Perspective correction result\n", 0);
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    viewportTransformation(&outA[0], &outA[1]);
+    viewportTransformation(&outB[0], &outB[1]);
+    viewportTransformation(&outC[0], &outC[1]);
+    LOG("Viewport transformation result\n", 0);
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    vec2 rasterA = {outA[0], outA[1]};
+    vec2 rasterB = {outB[0], outB[1]};
+    vec2 rasterC = {outC[0], outC[1]};
+
+    /// Rasterization
+    Fragment fragments[W * H];
+    int size = _rasterizeTriangle(rasterA, rasterB, rasterC, fragments);
+
+    LOG("Completed rasterization stage.\n\n", 0);
+    LOG("%d rasterized fragments", size);
+
+    for (int i = 0; i < size; i++)
+    {
+      sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
+    }
+  }
 }
 
 void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
