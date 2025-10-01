@@ -1,2 +1,4 @@
 .vscode/
 SeqGraph*
+gmon.out
+results.md

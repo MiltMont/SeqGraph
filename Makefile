@@ -12,7 +12,7 @@ SeqGraphDebug: src/main.c
 	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG
 
 SeqGraphProf: src/main.c
-	gcc $(SRCS) -o Profile $(LDFLAGS) -pg
+	gcc $(SRCS) -o SeqGraphProfile $(LDFLAGS) -pg
 
 .PHONY: test clean debug
 
@@ -23,7 +23,7 @@ debug: SeqGraphDebug
 	./SeqGraphDebug
 
 profile: SeqGraphProf
-	./Profile 
+	./SeqGraphProfile 
 	gprof ./Profile > results.md
 
 clean: 
