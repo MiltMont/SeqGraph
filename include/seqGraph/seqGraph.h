@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define W 400
-#define H 400
+#define W 701
+#define H 701
 #define SHADER_BUFF_SIZE 32
 
 typedef f32 Buffer[SHADER_BUFF_SIZE];

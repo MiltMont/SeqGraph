@@ -28,7 +28,7 @@ u32 viewPort_h;
 Color fBuffer[W * H] = {0};
 Color clearColor;
 
-void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, W); }
+void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
 
 void sgSetClearColor(Color c) { clearColor = c; }
 
@@ -42,8 +42,26 @@ void sgClearColor()
 
 void sgPokePixel(u32 x, u32 y, Color c)
 {
-  LOG("Drawing at: (%d, %d)\n", x, y);
-  fBuffer[W * y + x] = c;
+  int dest = W * y + x;
+  if (dest < W * H && dest > 0)
+  {
+    LOG("Drawing at: (%d, %d)\n", x, y);
+    fBuffer[dest] = c;
+  }
+  else if (dest == W * H)
+  {
+    LOG("Drawing at: (%d, %d)\n", x, y);
+    fBuffer[dest - 1] = c;
+  }
+  else if (dest == 0)
+  {
+    LOG("Drawing at: (%d, %d)\n", x, y);
+    fBuffer[0] = c;
+  }
+  else
+  {
+    LOG("Out of bounds: %d\n", dest);
+  }
 }
 
 void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
@@ -84,27 +102,32 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
     f32 w = vert[3];
 
     // Clipping
-    if (current[1] > w || current[1] < -w || current[0] > w ||
-        current[0] < -w)
+    if (fabs(current[1]) > w || fabs(current[0]) > w)
     {
       LOG("Clipped point: (%f, %f)\n", current[0], current[1]);
       break;
     }
 
     perspectiveCorrection(&current[0], &current[1], w);
+    LOG("Perspective correction result:\n", 0);
+    LOGV3("P", current);
+
     viewportTransformation(&current[0], &current[1]);
+    LOG("Vieport transformation result:\n", 0);
+    LOGV3("P", current);
 
     // Fragment shader
     Color finalColor = 0x00000000;
     vec4 color = {0.0, 0.0, 0.0, 0.0};
 
     __default_frag_shader(color, current[0], current[1], buffer);
+    LOGV4("COLOR", color);
 
     finalColor |= (u32)(color[0] * 255.0f);
     finalColor |= (u32)(color[1] * 255.0f) << 8;
     finalColor |= (u32)(color[2] * 255.0f) << 16;
 
-    sgPokePixel(current[0], current[1], finalColor);
+    sgPokePixel((int)current[0], (int)current[1], finalColor);
   }
 }
 
@@ -227,12 +250,37 @@ void _sgDrawLines(vec3 vertex[], u32 count)
 
 bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y)
 {
-  // TODO: Implement this!
-  return true;
+
+  // Compute vectors
+  f32 px = x, py = y;
+  f32 ax = a[0], ay = a[1];
+  f32 bx = b[0], by = b[1];
+  f32 cx = c[0], cy = c[1];
+
+  // Vectors from triangle vertices to the point
+  f32 v0x = bx - ax, v0y = by - ay;
+  f32 v1x = cx - bx, v1y = cy - by;
+  f32 v2x = ax - cx, v2y = ay - cy;
+
+  f32 apx = px - ax, apy = py - ay;
+  f32 bpx = px - bx, bpy = py - by;
+  f32 cpx = px - cx, cpy = py - cy;
+
+  // Cross products (edge functions)
+  f32 cross1 = v0x * apy - v0y * apx;
+  f32 cross2 = v1x * bpy - v1y * bpx;
+  f32 cross3 = v2x * cpy - v2y * cpx;
+
+  // Check if all cross products have the same sign (or are zero)
+  bool has_neg = (cross1 < 0) || (cross2 < 0) || (cross3 < 0);
+  bool has_pos = (cross1 > 0) || (cross2 > 0) || (cross3 > 0);
+
+  return !(has_neg && has_pos);
 }
 
 int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
 {
+  // TODO: Use a more efficient approach.
   int current = 0;
   LOG("Computing bounding box limits\n", 0);
   // Getting bounding box limits.
@@ -361,11 +409,9 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer)
 
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
 {
-  f32 tempX = (x_r + 1) / 2;
-  f32 tempY = (y_r + 1) / 2;
-  color[0] = tempX;
+  color[0] = 0.0;
   color[1] = 0.0;
-  color[2] = tempY;
+  color[2] = 1.0;
   color[3] = 1.0;
 
   return true;
