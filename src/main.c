@@ -26,14 +26,16 @@ int main(int argc, char *argv[])
 
   while (1)
   {
-    timer += 0.05;
+    timer += 100;
 
     sgClearColor();
     OSW_Poll();
-
     sgDrawVertex(sgTriangle, points, 3);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
+
+    points[1][0] = cos(timer);
+    points[1][1] = sin(timer);
   }
   return 0;
 }

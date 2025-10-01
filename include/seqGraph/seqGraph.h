@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define W 701
-#define H 701
+#define W 601
+#define H 601
 #define SHADER_BUFF_SIZE 32
 
 typedef f32 Buffer[SHADER_BUFF_SIZE];
@@ -44,7 +44,7 @@ void _sgDrawLines(vec3 *vertex, u32 count);
 void _sgDrawTriangles(vec3 *vertex, u32 count);
 
 /// @brief Graphics pipeline implementation.
-/// @param type The type of primitive we wish to render.
+/// @param type The type of primitive to render.
 /// @param vertex An array of vertices.
 /// @param count The size of the provided vertex array.
 void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count);
