@@ -250,32 +250,11 @@ void _sgDrawLines(vec3 vertex[], u32 count)
 
 bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y)
 {
-
-  // Compute vectors
-  f32 px = x, py = y;
-  f32 ax = a[0], ay = a[1];
-  f32 bx = b[0], by = b[1];
-  f32 cx = c[0], cy = c[1];
-
-  // Vectors from triangle vertices to the point
-  f32 v0x = bx - ax, v0y = by - ay;
-  f32 v1x = cx - bx, v1y = cy - by;
-  f32 v2x = ax - cx, v2y = ay - cy;
-
-  f32 apx = px - ax, apy = py - ay;
-  f32 bpx = px - bx, bpy = py - by;
-  f32 cpx = px - cx, cpy = py - cy;
-
-  // Cross products (edge functions)
-  f32 cross1 = v0x * apy - v0y * apx;
-  f32 cross2 = v1x * bpy - v1y * bpx;
-  f32 cross3 = v2x * cpy - v2y * cpx;
-
-  // Check if all cross products have the same sign (or are zero)
-  bool has_neg = (cross1 < 0) || (cross2 < 0) || (cross3 < 0);
-  bool has_pos = (cross1 > 0) || (cross2 > 0) || (cross3 > 0);
-
-  return !(has_neg && has_pos);
+  f32 denom = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
+  f32 alpha = ((b[1] - c[1]) * (x - c[0]) + (c[0] - b[0]) * (y - c[1])) / denom;
+  f32 beta = ((c[1] - a[1]) * (x - c[0]) + (a[0] - c[0]) * (y - c[1])) / denom;
+  f32 gamma = 1.0f - alpha - beta;
+  return alpha >= 0 && beta >= 0 && gamma >= 0;
 }
 
 int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])

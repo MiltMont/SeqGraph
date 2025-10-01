@@ -2,23 +2,30 @@ INCLUDE_DIR = ./include
 LIB_DIR = ./lib
 SRCS = $(wildcard ./src/*.c)
 
-LDFLAGS = -std=c99 -I$(INCLUDE_DIR) -L$(LIB_DIR) -lm -ldl -losw -lX11 -lGL -g 
+LDFLAGS = -std=c99 -I$(INCLUDE_DIR) -L$(LIB_DIR) -lm -ldl -losw -lX11 -lGL 
 
 
 SeqGraphTest: src/main.c
-	gcc $(SRCS) -o SeqGraphTest $(LDFLAGS)
+	gcc $(SRCS) -o SeqGraphTest $(LDFLAGS) 
 
 SeqGraphDebug: src/main.c 
-	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG 
+	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG
 
+SeqGraphProf: src/main.c
+	gcc $(SRCS) -o Profile $(LDFLAGS) -pg
 
 .PHONY: test clean debug
 
 test: SeqGraphTest
 	./SeqGraphTest
 
-clean: 
-	rm -f SeqGraph*
-
 debug: SeqGraphDebug
 	./SeqGraphDebug
+
+profile: SeqGraphProf
+	./Profile 
+	gprof ./Profile > results.md
+
+clean: 
+	rm SeqGraph* gmon.out results.md
+
