@@ -30,12 +30,9 @@ int main(int argc, char *argv[])
 
     sgClearColor();
     OSW_Poll();
-    sgDrawVertex(sgTriangle, points, 3);
+    sgDrawVertex(sgLine, points, 3);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-
-    points[1][0] = cos(timer);
-    points[1][1] = sin(timer);
   }
   return 0;
 }

@@ -37,4 +37,9 @@ void perspectiveCorrection(f32 *x, f32 *y, f32 w);
 /// @return
 bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
 
+/// @brief Transforms a `vec4` into a `Color`.
+/// @param color
+/// @return
+Color vec4ToColor(vec4 color);
+
 #endif

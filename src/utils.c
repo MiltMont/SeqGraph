@@ -21,3 +21,13 @@ bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y)
     f32 gamma = 1.0f - alpha - beta;
     return alpha >= 0 && beta >= 0 && gamma >= 0;
 }
+
+Color vec4ToColor(vec4 color)
+{
+    u8 r = (u8)(color[0] * 255.0f);
+    u8 g = (u8)(color[1] * 255.0f);
+    u8 b = (u8)(color[2] * 255.0f);
+    u8 a = (u8)(color[3] * 255.0f);
+
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}

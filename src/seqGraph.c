@@ -95,6 +95,7 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
     __default_frag_shader(color, current[0], current[1], buffer);
     LOGV4("COLOR", color);
 
+    // Color finalColor = vec4ToColor(color);
     finalColor |= (u32)(color[0] * 255.0f);
     finalColor |= (u32)(color[1] * 255.0f) << 8;
     finalColor |= (u32)(color[2] * 255.0f) << 16;
@@ -334,10 +335,13 @@ void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
   {
   case sgPoint:
     _sgDrawPoints(vertex, count);
+    break;
   case sgLine:
     _sgDrawLines(vertex, count);
+    break;
   case sgTriangle:
     _sgDrawTriangles(vertex, count);
+    break;
   }
 }
 
