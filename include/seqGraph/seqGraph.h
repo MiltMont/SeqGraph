@@ -2,6 +2,7 @@
 #define __SG_H__
 
 #include <math.h>
+#include <stdlib.h>
 #include <seqGraph/types.h>
 #include <seqGraph/utils.h>
 
@@ -46,7 +47,7 @@ void viewportTransformation(f32 *x, f32 *y);
 /// @param dest
 /// @return
 
-int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment dest[]);
+int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment dest[]);
 
 /// @brief  This function fills a Fragment array and returns the number of
 /// processed fragments.

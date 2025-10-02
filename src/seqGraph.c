@@ -104,62 +104,67 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
   }
 }
 
-int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment *dest)
+// TODO: Avoid floating point arithmetic.
+int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
 {
-  f32 m_new = 2 * fabs(y1 - y0);
-  f32 slope_error = m_new - fabs(x1 - x0);
+  int dx = abs(x0 - x1);
+  int dy = abs(y1 - y0);
+  int p = 2 * (dy - dx);
+
+  int twoDy = 2 * dy;
+  int twoDx = 2 * dx;
+  int twoDyDx = 2 * (dy - dx);
+  int twoDxDy = 2 * (dx - dy);
+
+  int x = x0, y = y0;
+
+  int xIncrement = (x1 > x0) ? 1 : -1;
+  int yIncrement = (y1 > y0) ? 1 : -1;
+
   int current = 0;
 
-  if (x0 == x1 && y0 == y1)
+  if (dx > dy)
   {
-    dest[current][0] = x0;
-    dest[current][1] = y0;
-
-    return current;
-  }
-
-  if (x0 == x1)
-  {
-    float start = MIN(y0, y1);
-    float end = MAX(y0, y1);
-
-    for (float i = start; i < end; i++)
+    for (int i = 0; i < dx; i++)
     {
-      dest[current][0] = x0;
-      dest[current][1] = i;
-      current += 1;
-    }
-    return current;
-  }
+      x += xIncrement;
 
-  float xStart = MIN(x0, x1);
-  float xEnd = MAX(x0, x1);
-  float yStart = x0 < x1 ? y0 : y1;
-  float yEnd = x0 < x1 ? y1 : y0;
-
-  for (float x = xStart, y = yStart; x < xEnd; x += 1)
-  {
-    LOG("Current: (%f, %f)\n", x, y);
-
-    slope_error += m_new;
-    if (slope_error >= 0)
-    {
-      if (yStart < yEnd)
+      if (p < 0)
       {
-        y++;
+        p += twoDy;
       }
       else
       {
-        y--;
+        y += yIncrement;
+        p += twoDyDx;
       }
-      slope_error -= 2 * fabs(x1 - x0);
+
+      dest[current][0] = x;
+      dest[current][1] = y;
+      current += 1;
     }
-
-    dest[current][0] = x;
-    dest[current][1] = y;
-    current += 1;
   }
+  else
+  {
+    for (int i = 0; i < dy; i++)
+    {
+      y += yIncrement;
 
+      if (p < 0)
+      {
+        p += twoDx;
+      }
+      else
+      {
+        x += xIncrement;
+        p += twoDxDy;
+      }
+
+      dest[current][0] = x;
+      dest[current][1] = y;
+      current += 1;
+    }
+  }
   return current;
 }
 
@@ -209,14 +214,17 @@ void _sgDrawLines(vec3 vertex[], u32 count)
 
     // Rasterization.
     Fragment fragments[(int)ceil(sqrt(W * W + H * H))];
-    int size = _rasterizeLine(firstOut[0], firstOut[1], nextOut[0], nextOut[1], fragments);
+    int size = _rasterizeLine((int)firstOut[0], (int)firstOut[1], (int)nextOut[0], (int)nextOut[1], fragments);
 
     LOG("\nCOMPLETED RASTERIZATION STAGE.\n\n", 0);
+
+    vec4 color = {1.0, 0.0, 0.0, 1.0};
+    Color finalColor = vec4ToColor(color);
 
     // TODO: Implement fragment shader.
     for (int i = 0; i < size; i++)
     {
-      sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
+      sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }
   }
 }
@@ -285,8 +293,17 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
     LOGV4("C", outC);
 
     // Clipping
-    // TODO: Clip all points?
-    if (fabs(outA[0]) > w || fabs(outB[1]) > w)
+    if (fabs(outA[0]) > w || fabs(outA[1]) > w)
+    {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+    if (fabs(outB[0]) > w || fabs(outB[1]) > w)
+    {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+    if (fabs(outC[0]) > w || fabs(outC[1]) > w)
     {
       LOG("Clipped point (%f, %f)", outA[0], outA[1]);
       break;
@@ -322,9 +339,11 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
     LOG("Completed rasterization stage.\n\n", 0);
     LOG("%d rasterized fragments", size);
 
+    vec4 color = {0.0, 0.0, 0.0, 1.0};
+    Color finalColor = vec4ToColor(color);
     for (int i = 0; i < size; i++)
     {
-      sgPokePixel(fragments[i][0], fragments[i][1], 0x000);
+      sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }
   }
 }

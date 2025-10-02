@@ -18,21 +18,31 @@ int main(int argc, char *argv[])
   sgViewport(0, 0, W, H);
 
   vec3 points[] = {
-      {0.0, 0.0, 0.0},
+      {-0.7, 0.0, 0.0},
       {-1.0, -1.0, 0.0},
       {1.0, 0.0, 0.0}};
 
+  vec3 lines[] = {
+      {-0.7, 0.0, 0.0},
+      {-1.0, -1.0, 0.0},
+      {1.0, 0.0, 0.0},
+      {-0.7, 0.0, 0.0},
+  };
   f32 timer = 0;
 
   while (1)
   {
-    timer += 100;
+    timer += 0.01;
 
     sgClearColor();
     OSW_Poll();
+    sgDrawVertex(sgTriangle, points, 3);
     sgDrawVertex(sgLine, points, 3);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
+
+    points[0][0] = sin(timer);
+    points[1][0] = cos(timer);
   }
   return 0;
 }

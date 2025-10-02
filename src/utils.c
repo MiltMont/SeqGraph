@@ -29,5 +29,5 @@ Color vec4ToColor(vec4 color)
     u8 b = (u8)(color[2] * 255.0f);
     u8 a = (u8)(color[3] * 255.0f);
 
-    return (a << 24) | (r << 16) | (g << 8) | b;
+    return (a << 24) | (b << 16) | (g << 8) | r;
 }

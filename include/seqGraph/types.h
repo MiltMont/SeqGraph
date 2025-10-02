@@ -17,7 +17,7 @@ enum PrimitiveType
     sgTriangle
 };
 
-typedef f32 Fragment[2];
+typedef u32 Fragment[2];
 
 /// Math
 typedef float vec2[2];
