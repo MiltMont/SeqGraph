@@ -266,11 +266,24 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
     LOG("%d rasterized fragments", size);
 
     /// Fragment shader
-    vec4 color = {0.0, 0.0, 0.0, 1.0};
-    Color finalColor = vec4ToColor(color);
+    vec4 colorA = {1.0, 0.0, 0.0, 1.0};
+    vec4 colorB = {0.0, 1.0, 0.0, 1.0};
+    vec4 colorC = {0.0, 0.0, 1.0, 1.0};
 
     for (u32 i = 0; i < size; i++)
     {
+      vec3 coords;
+      vec2 current = {(float)fragments[i][0], (float)fragments[i][1]};
+
+      LOGV2("A", rasterA);
+      LOGV2("B", rasterB);
+      LOGV2("C", rasterC);
+      LOGV2("Curr", current);
+      getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
+      LOGV3("BCORDS", coords);
+      vec4 interpColor = {coords[0], coords[1], coords[2], 1.0};
+      Color finalColor = vec4ToColor(interpColor);
+
       sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }
   }

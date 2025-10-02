@@ -10,6 +10,12 @@
 #endif
 
 #ifdef DEBUG
+#define LOGV2(NAME, P) fprintf(stderr, "%s=(%f, %f)\n", NAME, P[0], P[1])
+#else
+#define LOGV2(NAME, P)
+#endif
+
+#ifdef DEBUG
 #define LOGV3(NAME, P) fprintf(stderr, "%s=(%f, %f, %f)\n", NAME, P[0], P[1], P[2])
 #else
 #define LOGV3(NAME, P)
