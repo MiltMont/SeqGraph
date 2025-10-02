@@ -183,6 +183,11 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
 {
   LOG("Starting triangle drawing\n", 0);
 
+  if (count < 3)
+  {
+    return;
+  }
+
   for (int i = 0; i < count - 2; i++)
   {
     vec3 a = {vertex[i][0], vertex[i][1], vertex[i][2]};
@@ -260,9 +265,11 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
     LOG("Completed rasterization stage.\n\n", 0);
     LOG("%d rasterized fragments", size);
 
+    /// Fragment shader
     vec4 color = {0.0, 0.0, 0.0, 1.0};
     Color finalColor = vec4ToColor(color);
-    for (int i = 0; i < size; i++)
+
+    for (u32 i = 0; i < size; i++)
     {
       sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }

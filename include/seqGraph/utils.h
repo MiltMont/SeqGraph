@@ -3,27 +3,8 @@
 
 #include <libosw/types.h>
 #include <seqGraph/types.h>
-#include <stdio.h>
+#include <seqGraph/debug.h>
 #include <stdbool.h>
-
-/// Logging
-#ifdef DEBUG
-#define LOG(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
-#else
-#define LOG(fmt, ...)
-#endif
-
-#ifdef DEBUG
-#define LOGV3(NAME, P) fprintf(stderr, "%s=(%f, %f, %f)\n", NAME, P[0], P[1], P[2])
-#else
-#define LOGV3(NAME, P)
-#endif
-
-#ifdef DEBUG
-#define LOGV4(NAME, P) fprintf(stderr, "%s=(%f, %f, %f, %f)\n", NAME, P[0], P[1], P[2], P[3])
-#else
-#define LOGV4(NAME, P)
-#endif
 
 // Graphics utils
 
@@ -42,4 +23,7 @@ bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
 /// @return
 Color vec4ToColor(vec4 color);
 
+f32 *getBarycentrycCoordinates(vec2 A, vec2 B, vec2 C, vec3 D);
+
+f32 areaOfTriangle(vec3 A, vec3 B, vec3 C);
 #endif

@@ -59,16 +59,20 @@ f32 *vec3_lerp(vec3 dest, const vec3 v, const vec3 u, f32 a)
     return dest;
 };
 
-float vec3_dot(const vec3 v, const vec3 u)
+f32 vec3_dot(const vec3 v, const vec3 u)
 {
-    float sum;
-
-    for (int i = 0; i < 3; i++)
-    {
-        sum += v[i] * u[i];
-    }
+    f32 sum = v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
 
     return sum;
+}
+
+void vec3Cross(vec3 dest, const vec3 v, const vec3 u)
+{
+    LOGV3("V", v);
+    LOGV3("U", u);
+    dest[0] = v[1] * u[2] - v[2] * u[1];
+    dest[1] = v[2] * u[0] - v[0] * u[2];
+    dest[2] = v[0] * u[1] - v[1] * u[0];
 }
 
 f32 *vec3_cross(vec3 dest, const vec3 v, const vec3 u)

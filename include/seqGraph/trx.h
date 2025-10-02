@@ -8,6 +8,8 @@
 
 #include <libosw/osw.h>
 #include <seqGraph/types.h>
+#include <seqGraph/debug.h>
+#include <math.h>
 
 #define CLAMP(x, a, b) x < a ? a : (x > b ? b : x)
 
@@ -19,7 +21,7 @@ f32 *vec3_smul(vec3 dest, float k, const vec3 v);
 int vec3_eq(const vec3 u, const vec3 v);
 f32 *vec3_clamp(vec3 v, float a, float b);
 f32 *vec3_lerp(vec3 dest, const vec3 v, const vec3 u, f32 a);
-float vec3_dot(const vec3 v, const vec3 u);
+f32 vec3_dot(const vec3 v, const vec3 u);
 f32 *vec3_cross(vec3 dest, const vec3 v, const vec3 u);
 f32 *vec3_reflect(vec3 dest, const vec3 m, const vec3 p);
 void vec3_normalize(vec3 v);
@@ -43,6 +45,9 @@ void mat4_scale(mat4 m, vec3 v);
 
 void mat4_ortho(mat4 m, float left, float right, float bottom, float top, float near, float far);
 void mat4_perspective(mat4 m, float fovy, float aspect, float znear, float zfar);
+
+/// New functions
+void vec3Cross(vec3 dest, const vec3 v, const vec3 u);
 
 // /// Spatial transformations
 

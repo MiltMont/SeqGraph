@@ -1,4 +1,5 @@
 #include <seqGraph/utils.h>
+#include <seqGraph/trx.h>
 
 void perspectiveCorrection(f32 *x, f32 *y, f32 w)
 {
@@ -30,4 +31,22 @@ Color vec4ToColor(vec4 color)
     u8 a = (u8)(color[3] * 255.0f);
 
     return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
+f32 *getBarycentrycCoordinates(vec2 A, vec2 B, vec2 C, vec3 D)
+{
+    f32 totalArea = areaOfTriangle(A, B, C);
+    LOG("Area ABC=%f", totalArea);
+}
+
+f32 areaOfTriangle(vec3 A, vec3 B, vec3 C)
+{
+    vec3 cross;
+    vec3 AB;
+    vec3 AC;
+    vec3Cross(cross, vec3_sub(AB, B, A), vec3_sub(AC, C, A));
+    f32 dot = vec3_dot(cross, cross);
+    f32 norm = sqrt(dot);
+
+    return norm / 2;
 }
