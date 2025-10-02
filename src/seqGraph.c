@@ -1,23 +1,6 @@
+#include <libosw/osw.h>
 #include <seqGraph/seqGraph.h>
-#include <stdio.h>
-
-#ifdef DEBUG
-#define LOG(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
-#else
-#define LOG(fmt, ...)
-#endif
-
-#ifdef DEBUG
-#define LOGV3(NAME, P) fprintf(stderr, "%s=(%f, %f, %f)\n", NAME, P[0], P[1], P[2])
-#else
-#define LOGV3(NAME, P)
-#endif
-
-#ifdef DEBUG
-#define LOGV4(NAME, P) fprintf(stderr, "%s=(%f, %f, %f, %f)\n", NAME, P[0], P[1], P[2], P[3])
-#else
-#define LOGV4(NAME, P)
-#endif
+#include <seqGraph/utils.h>
 
 // Local variables
 u32 viewPort_x;
@@ -73,17 +56,6 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
 }
 
 /// Utility function
-void perspectiveCorrection(f32 *x, f32 *y, f32 w)
-{
-  x[0] = x[0] / w;
-  x[1] = x[1] / w;
-}
-
-void viewportTransformation(f32 *x, f32 *y)
-{
-  *x = (viewPort_w / 2) * (*x + 1) + viewPort_x;
-  *y = (viewPort_h / 2) * (1 - *y) + viewPort_y;
-}
 
 /// Internal function
 void _sgDrawPoints(vec3 *vertex, u32 count)
@@ -248,15 +220,6 @@ void _sgDrawLines(vec3 vertex[], u32 count)
   }
 }
 
-bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y)
-{
-  f32 denom = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
-  f32 alpha = ((b[1] - c[1]) * (x - c[0]) + (c[0] - b[0]) * (y - c[1])) / denom;
-  f32 beta = ((c[1] - a[1]) * (x - c[0]) + (a[0] - c[0]) * (y - c[1])) / denom;
-  f32 gamma = 1.0f - alpha - beta;
-  return alpha >= 0 && beta >= 0 && gamma >= 0;
-}
-
 int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
 {
   // TODO: Use a more efficient approach.
@@ -394,4 +357,13 @@ bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
   color[3] = 1.0;
 
   return true;
+}
+
+/// @brief [-1,1] x [-1,1] -> [0, W] x [0, H] transformation.
+/// @param x
+/// @param y
+void viewportTransformation(f32 *x, f32 *y)
+{
+  *x = (viewPort_w / 2) * (*x + 1) + viewPort_x;
+  *y = (viewPort_h / 2) * (1 - *y) + viewPort_y;
 }

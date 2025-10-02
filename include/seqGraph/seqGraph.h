@@ -1,27 +1,9 @@
 #ifndef __SG_H__
 #define __SG_H__
-#include <libosw/osw.h>
-#include <trx.h>
-#include <stdbool.h>
+
 #include <math.h>
-
-#define W 601
-#define H 601
-#define SHADER_BUFF_SIZE 32
-
-typedef f32 Buffer[SHADER_BUFF_SIZE];
-
-/// Types
-typedef u32 Color;
-
-enum PrimitiveType
-{
-    sgPoint,
-    sgLine,
-    sgTriangle
-};
-
-typedef f32 Fragment[2];
+#include <seqGraph/types.h>
+#include <seqGraph/utils.h>
 
 /// Draws the framebuffer.
 void sgDrawBuffer(void);
@@ -50,14 +32,10 @@ void _sgDrawTriangles(vec3 *vertex, u32 count);
 void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count);
 
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer);
-
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer);
 
 /// Utility functions
-void perspectiveCorrection(f32 *x, f32 *y, f32 w);
-void perspCorrection(vec3 *P, f32 w);
-void viewportTranformation(f32 *x, f32 *y);
-bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
+void viewportTransformation(f32 *x, f32 *y);
 
 /// @brief This function fills a Fragment array and returns the length of the
 /// resulting array.
@@ -67,6 +45,7 @@ bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
 /// @param y1
 /// @param dest
 /// @return
+
 int _rasterizeLine(f32 x0, f32 y0, f32 x1, f32 y1, Fragment dest[]);
 
 /// @brief  This function fills a Fragment array and returns the number of
