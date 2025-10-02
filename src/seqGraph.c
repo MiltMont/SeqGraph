@@ -55,9 +55,23 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
   viewPort_h = h;
 }
 
-/// Utility function
+void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
+{
+  switch (type)
+  {
+  case sgPoint:
+    _sgDrawPoints(vertex, count);
+    break;
+  case sgLine:
+    _sgDrawLines(vertex, count);
+    break;
+  case sgTriangle:
+    _sgDrawTriangles(vertex, count);
+    break;
+  }
+}
 
-/// Internal function
+/// Internal functions
 void _sgDrawPoints(vec3 *vertex, u32 count)
 {
   for (int i = 0; i < count; i++)
@@ -102,70 +116,6 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
 
     sgPokePixel((int)current[0], (int)current[1], finalColor);
   }
-}
-
-// TODO: Avoid floating point arithmetic.
-int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
-{
-  int dx = abs(x0 - x1);
-  int dy = abs(y1 - y0);
-  int p = 2 * (dy - dx);
-
-  int twoDy = 2 * dy;
-  int twoDx = 2 * dx;
-  int twoDyDx = 2 * (dy - dx);
-  int twoDxDy = 2 * (dx - dy);
-
-  int x = x0, y = y0;
-
-  int xIncrement = (x1 > x0) ? 1 : -1;
-  int yIncrement = (y1 > y0) ? 1 : -1;
-
-  int current = 0;
-
-  if (dx > dy)
-  {
-    for (int i = 0; i < dx; i++)
-    {
-      x += xIncrement;
-
-      if (p < 0)
-      {
-        p += twoDy;
-      }
-      else
-      {
-        y += yIncrement;
-        p += twoDyDx;
-      }
-
-      dest[current][0] = x;
-      dest[current][1] = y;
-      current += 1;
-    }
-  }
-  else
-  {
-    for (int i = 0; i < dy; i++)
-    {
-      y += yIncrement;
-
-      if (p < 0)
-      {
-        p += twoDx;
-      }
-      else
-      {
-        x += xIncrement;
-        p += twoDxDy;
-      }
-
-      dest[current][0] = x;
-      dest[current][1] = y;
-      current += 1;
-    }
-  }
-  return current;
 }
 
 void _sgDrawLines(vec3 vertex[], u32 count)
@@ -227,35 +177,6 @@ void _sgDrawLines(vec3 vertex[], u32 count)
       sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }
   }
-}
-
-int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
-{
-  // TODO: Use a more efficient approach.
-  int current = 0;
-  LOG("Computing bounding box limits\n", 0);
-  // Getting bounding box limits.
-  f32 xMin = MIN(x[0], MIN(y[0], z[0]));
-  f32 xMax = MAX(x[0], MAX(y[0], z[0]));
-  f32 yMin = MIN(x[1], MIN(y[1], z[1]));
-  f32 yMax = MAX(x[1], MAX(y[1], z[1]));
-
-  LOG("Result: [%f,%f]x[%f,%f]\n", xMin, yMin, xMax, yMax);
-
-  for (int i = xMin; i < xMax; i++)
-  {
-    for (int j = yMin; j < yMax; j++)
-    {
-      if (isInTriangle(x, y, z, i, j))
-      {
-        dest[current][0] = i;
-        dest[current][1] = j;
-        current += 1;
-      }
-    }
-  }
-
-  return current;
 }
 
 void _sgDrawTriangles(vec3 vertex[], u32 count)
@@ -348,22 +269,100 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
   }
 }
 
-void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
+/// Rasterization functions
+int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
 {
-  switch (type)
+  int dx = abs(x0 - x1);
+  int dy = abs(y1 - y0);
+  int p = 2 * (dy - dx);
+
+  int twoDy = 2 * dy;
+  int twoDx = 2 * dx;
+  int twoDyDx = 2 * (dy - dx);
+  int twoDxDy = 2 * (dx - dy);
+
+  int x = x0, y = y0;
+
+  int xIncrement = (x1 > x0) ? 1 : -1;
+  int yIncrement = (y1 > y0) ? 1 : -1;
+
+  int current = 0;
+
+  if (dx > dy)
   {
-  case sgPoint:
-    _sgDrawPoints(vertex, count);
-    break;
-  case sgLine:
-    _sgDrawLines(vertex, count);
-    break;
-  case sgTriangle:
-    _sgDrawTriangles(vertex, count);
-    break;
+    for (int i = 0; i < dx; i++)
+    {
+      x += xIncrement;
+
+      if (p < 0)
+      {
+        p += twoDy;
+      }
+      else
+      {
+        y += yIncrement;
+        p += twoDyDx;
+      }
+
+      dest[current][0] = x;
+      dest[current][1] = y;
+      current += 1;
+    }
   }
+  else
+  {
+    for (int i = 0; i < dy; i++)
+    {
+      y += yIncrement;
+
+      if (p < 0)
+      {
+        p += twoDx;
+      }
+      else
+      {
+        x += xIncrement;
+        p += twoDxDy;
+      }
+
+      dest[current][0] = x;
+      dest[current][1] = y;
+      current += 1;
+    }
+  }
+  return current;
 }
 
+int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
+{
+  // TODO: Use a more efficient approach.
+  int current = 0;
+  LOG("Computing bounding box limits\n", 0);
+  // Getting bounding box limits.
+  f32 xMin = MIN(x[0], MIN(y[0], z[0]));
+  f32 xMax = MAX(x[0], MAX(y[0], z[0]));
+  f32 yMin = MIN(x[1], MIN(y[1], z[1]));
+  f32 yMax = MAX(x[1], MAX(y[1], z[1]));
+
+  LOG("Result: [%f,%f]x[%f,%f]\n", xMin, yMin, xMax, yMax);
+
+  for (int i = xMin; i < xMax; i++)
+  {
+    for (int j = yMin; j < yMax; j++)
+    {
+      if (isInTriangle(x, y, z, i, j))
+      {
+        dest[current][0] = i;
+        dest[current][1] = j;
+        current += 1;
+      }
+    }
+  }
+
+  return current;
+}
+
+/// Shaders
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer)
 {
   out[0] = vert[0];
@@ -381,6 +380,8 @@ bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
 
   return true;
 }
+
+/// Utility functions
 
 /// @brief [-1,1] x [-1,1] -> [0, W] x [0, H] transformation.
 /// @param x

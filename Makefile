@@ -24,7 +24,7 @@ debug: SeqGraphDebug
 
 profile: SeqGraphProf
 	./SeqGraphProfile 
-	gprof ./Profile > results.md
+	gprof ./SeqGraphProfile > results.md
 
 clean: 
 	rm SeqGraph* gmon.out results.md
