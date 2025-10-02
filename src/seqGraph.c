@@ -275,12 +275,8 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
       vec3 coords;
       vec2 current = {(float)fragments[i][0], (float)fragments[i][1]};
 
-      LOGV2("A", rasterA);
-      LOGV2("B", rasterB);
-      LOGV2("C", rasterC);
-      LOGV2("Curr", current);
       getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
-      LOGV3("BCORDS", coords);
+
       vec4 interpColor = {coords[0], coords[1], coords[2], 1.0};
       Color finalColor = vec4ToColor(interpColor);
 

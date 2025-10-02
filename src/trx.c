@@ -12,10 +12,9 @@ f32 *vec3_add(vec3 dest, const vec3 v, const vec3 u)
 
 f32 *vec3_sub(vec3 dest, const vec3 v, const vec3 u)
 {
-    for (int i = 0; i < 3; i++)
-    {
-        dest[i] = v[i] - u[i];
-    }
+    dest[0] = v[0] - u[0];
+    dest[1] = v[1] - u[1];
+    dest[2] = v[2] - u[2];
     return dest;
 };
 
