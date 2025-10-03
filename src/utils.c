@@ -61,3 +61,23 @@ f32 areaOfTriangle(vec3 A, vec3 B, vec3 C)
 
     return norm / 2;
 }
+
+void interpolate(vec3 dest, vec3 A, vec3 B, vec3 C, vec3 coefficients)
+{
+    f32 t1 = coefficients[0];
+    f32 t2 = coefficients[1];
+    f32 t3 = coefficients[2];
+
+    vec3 t1A, t2B, t3C;
+    vec3_smul(t1A, t1, A);
+    vec3_smul(t2B, t2, B);
+    vec3_smul(t3C, t3, C);
+
+    vec3 sum;
+    vec3_add(sum, t1A, t2B);
+    vec3_add(sum, sum, t3C);
+
+    dest[0] = sum[0];
+    dest[1] = sum[1];
+    dest[2] = sum[2];
+}

@@ -1,6 +1,7 @@
 #include <libosw/osw.h>
 #include <math.h>
 #include <seqGraph/seqGraph.h>
+#include <seqGraph/ds.h>
 
 int main(int argc, char *argv[])
 {
@@ -17,12 +18,12 @@ int main(int argc, char *argv[])
   sgSetClearColor(background);
   sgViewport(0, 0, W, H);
 
-  vec3 points[] = {
-      {-0.7, 0.0, 0.0},
-      {-1.0, -1.0, 0.0},
-      {1.0, 0.0, 0.0}};
-
   f32 timer = 0;
+
+  Vertex a = {.position = {0.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}};
+  Vertex b = {.position = {1.0, 0.0, 0.0}, .color = {0.0, 1.0, 0.0}};
+  Vertex c = {.position = {0.0, 1.0, 0.0}, .color = {0.0, 0.0, 1.0}};
+  Vertex points[] = {a, b, c};
 
   while (1)
   {
@@ -34,9 +35,8 @@ int main(int argc, char *argv[])
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
 
-    points[0][0] = sin(timer);
-    points[1][0] = cos(timer);
-    points[2][0] = cos(timer);
+    points[0].color[0] = fabs(cos(timer));
+    points[1].color[1] = fabs(sin(timer));
   }
   return 0;
 }

@@ -55,7 +55,7 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
   viewPort_h = h;
 }
 
-void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
+void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count)
 {
   switch (type)
   {
@@ -72,12 +72,12 @@ void sgDrawVertex(enum PrimitiveType type, vec3 vertex[], u32 count)
 }
 
 /// Internal functions
-void _sgDrawPoints(vec3 *vertex, u32 count)
+void _sgDrawPoints(Vertex vertex[], u32 count)
 {
   for (int i = 0; i < count; i++)
   {
 
-    vec3 current = {vertex[i][0], vertex[i][1]};
+    vec3 current = {vertex[i].position[0], vertex[i].position[1]};
     LOG("Current point: (%f, %f)\n", current[0], current[1]);
     vec4 vert;
     Buffer buffer = {0};
@@ -118,13 +118,13 @@ void _sgDrawPoints(vec3 *vertex, u32 count)
   }
 }
 
-void _sgDrawLines(vec3 vertex[], u32 count)
+void _sgDrawLines(Vertex vertex[], u32 count)
 {
   /// Iterate over pairs of points.
   for (int i = 0; i < count - 1; i++)
   {
-    vec3 first = {vertex[i][0], vertex[i][1], vertex[i][2]};
-    vec3 next = {vertex[i + 1][0], vertex[i + 1][1], vertex[i + 1][2]};
+    vec3 first = {vertex[i].position[0], vertex[i].position[1], vertex[i].position[2]};
+    vec3 next = {vertex[i + 1].position[0], vertex[i + 1].position[1], vertex[i + 1].position[2]};
 
     Buffer bufferFirst = {0};
     Buffer bufferNext = {0};
@@ -179,7 +179,7 @@ void _sgDrawLines(vec3 vertex[], u32 count)
   }
 }
 
-void _sgDrawTriangles(vec3 vertex[], u32 count)
+void _sgDrawTriangles(Vertex vertex[], u32 count)
 {
   LOG("Starting triangle drawing\n", 0);
 
@@ -190,9 +190,9 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
 
   for (int i = 0; i < count - 2; i++)
   {
-    vec3 a = {vertex[i][0], vertex[i][1], vertex[i][2]};
-    vec3 b = {vertex[i + 1][0], vertex[i + 1][1], vertex[i + 1][2]};
-    vec3 c = {vertex[i + 2][0], vertex[i + 2][1], vertex[i + 2][2]};
+    vec3 a = {vertex[i].position[0], vertex[i].position[1], vertex[i].position[2]};
+    vec3 b = {vertex[i + 1].position[0], vertex[i + 1].position[1], vertex[i + 1].position[2]};
+    vec3 c = {vertex[i + 2].position[0], vertex[i + 2].position[1], vertex[i + 2].position[2]};
 
     LOGV3("A", a);
     LOGV3("B", b);
@@ -270,17 +270,20 @@ void _sgDrawTriangles(vec3 vertex[], u32 count)
     vec4 colorB = {0.0, 1.0, 0.0, 1.0};
     vec4 colorC = {0.0, 0.0, 1.0, 1.0};
 
-    for (u32 i = 0; i < size; i++)
+    for (u32 j = 0; j < size; j++)
     {
       vec3 coords;
-      vec2 current = {(float)fragments[i][0], (float)fragments[i][1]};
+      vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
 
-      vec4 interpColor = {coords[0], coords[1], coords[2], 1.0};
-      Color finalColor = vec4ToColor(interpColor);
+      vec3 interpColor;
+      interpolate(interpColor, vertex[i].color, vertex[i + 1].color, vertex[i + 2].color, coords);
 
-      sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
+      vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
+      Color finalColor = vec4ToColor(alphaColor);
+
+      sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
     }
   }
 }

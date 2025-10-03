@@ -3,10 +3,15 @@
 
 f32 *vec3_add(vec3 dest, const vec3 v, const vec3 u)
 {
-    for (int i = 0; i < 3; i++)
-    {
-        dest[i] = v[i] + u[i];
-    }
+    vec3 res;
+    res[0] = v[0] + u[0];
+    res[1] = v[1] + u[1];
+    res[2] = v[2] + u[2];
+
+    dest[0] = res[0];
+    dest[1] = res[1];
+    dest[2] = res[2];
+
     return dest;
 };
 

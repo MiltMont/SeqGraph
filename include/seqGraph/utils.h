@@ -24,6 +24,7 @@ bool isInTriangle(vec2 a, vec2 b, vec2 c, f32 x, f32 y);
 Color vec4ToColor(vec4 color);
 
 void getBarycentricCoordinates(vec3 dest, vec2 A, vec2 B, vec2 C, vec2 D);
-
 f32 areaOfTriangle(vec3 A, vec3 B, vec3 C);
+
+void interpolate(vec3 dest, vec3 A, vec3 B, vec3 C, vec3 coefficients);
 #endif
