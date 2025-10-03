@@ -1,7 +1,6 @@
 #include <libosw/osw.h>
 #include <math.h>
 #include <seqGraph/seqGraph.h>
-#include <seqGraph/ds.h>
 
 int main(int argc, char *argv[])
 {

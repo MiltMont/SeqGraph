@@ -17,9 +17,15 @@ f32 *vec3_add(vec3 dest, const vec3 v, const vec3 u)
 
 f32 *vec3_sub(vec3 dest, const vec3 v, const vec3 u)
 {
-    dest[0] = v[0] - u[0];
-    dest[1] = v[1] - u[1];
-    dest[2] = v[2] - u[2];
+    vec3 temp;
+    temp[0] = v[0] - u[0];
+    temp[1] = v[1] - u[1];
+    temp[2] = v[2] - u[2];
+
+    dest[0] = temp[0];
+    dest[1] = temp[1];
+    dest[2] = temp[2];
+
     return dest;
 };
 
@@ -34,10 +40,15 @@ f32 *vec3_mul(vec3 dest, const vec3 v, const vec3 u)
 
 f32 *vec3_smul(vec3 dest, float k, const vec3 v)
 {
-    for (int i = 0; i < 3; i++)
-    {
-        dest[i] = k * v[i];
-    }
+    vec3 temp;
+    temp[0] = k * v[0];
+    temp[1] = k * v[1];
+    temp[2] = k * v[2];
+
+    dest[0] = temp[0];
+    dest[1] = temp[1];
+    dest[2] = temp[2];
+
     return dest;
 };
 
