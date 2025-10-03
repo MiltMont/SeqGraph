@@ -1,0 +1,3 @@
+[submodule "libosw"]
+	path = libosw
+	url = https://github.com/fadedled/libosw
