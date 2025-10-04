@@ -10,5 +10,5 @@ make
 
 echo "---Cloning include folder---"
 cd ../
-cp -r libosw/include/libosw include/libosw
+cp -r libosw/include/libosw include/
 mv libosw/lib/libosw.a lib/libosw.a
