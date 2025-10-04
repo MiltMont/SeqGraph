@@ -6,10 +6,7 @@
 #ifndef __TRX_H__
 #define __TRX_H__
 
-#include <libosw/osw.h>
 #include <seqGraph/types.h>
-#include <seqGraph/debug.h>
-#include <math.h>
 
 #define CLAMP(x, a, b) x < a ? a : (x > b ? b : x)
 
@@ -29,9 +26,9 @@ f32 *vec3_matMul(vec3 dest, const mat3 m, vec3 p);
 f32 *vec3_mat3Mul(vec3 dest, const mat4 m, vec3 p);
 float vec3_mat4Mul(vec3 dest, const mat4 m, vec3 p);
 f32 *vec3_homogenize(vec3 v, float w);
-
+f32 vec4_dot(const vec4 a, const vec4 b);
 f32 vec4_normalize(vec4 v);
-f32 vec4_matMul(vec4 dest, const mat4 m, vec4 p);
+void vec4_matMul(vec4 dest, const mat4 m, vec4 p);
 f32 vec4_homogenize(vec4 v);
 
 /* Matrix related functions */
@@ -43,8 +40,10 @@ void mat4_translate(mat4 m, vec3 v);
 void mat4_rotate(mat4 m, vec3 v, float angle);
 void mat4_scale(mat4 m, vec3 v);
 
-void mat4_ortho(mat4 m, float left, float right, float bottom, float top, float near, float far);
-void mat4_perspective(mat4 m, float fovy, float aspect, float znear, float zfar);
+void mat4_ortho(mat4 m, float left, float right, float bottom, float top,
+                float near, float far);
+void mat4_perspective(mat4 m, float fovy, float aspect, float znear,
+                      float zfar);
 
 /// New functions
 void vec3Cross(vec3 dest, const vec3 v, const vec3 u);
@@ -60,4 +59,5 @@ void vec3Cross(vec3 dest, const vec3 v, const vec3 u);
 // f32* mat4Orto();
 
 // f32* mat4_perspective();
+
 #endif /*__TRX_H__*/

@@ -1,14 +1,12 @@
 #ifndef __UTILS__
 #define __UTILS__
 
-#include <libosw/types.h>
 #include <seqGraph/types.h>
-#include <seqGraph/debug.h>
 #include <stdbool.h>
 
 // Graphics utils
 
-void perspectiveCorrection(f32 *x, f32 *y, f32 w);
+void perspectiveCorrection(vec4 point);
 /// @brief Check if a point (x,y) is in the triangle formed by `a`,`b`,`c`.
 /// @param a
 /// @param b

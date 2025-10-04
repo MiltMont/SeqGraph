@@ -1,8 +1,6 @@
 #ifndef __SG_H__
 #define __SG_H__
 
-#include <math.h>
-#include <stdlib.h>
 #include <seqGraph/types.h>
 #include <seqGraph/utils.h>
 

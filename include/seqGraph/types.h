@@ -17,16 +17,10 @@ typedef f32 Buffer[SHADER_BUFF_SIZE];
 
 typedef u32 Color;
 
-enum PrimitiveType
-{
-    sgPoint,
-    sgLine,
-    sgTriangle
-};
-typedef struct
-{
-    vec3 position;
-    vec3 color;
+enum PrimitiveType { sgPoint, sgLine, sgTriangle };
+typedef struct {
+  vec3 position;
+  vec3 color;
 } Vertex;
 
 typedef u32 Fragment[2];

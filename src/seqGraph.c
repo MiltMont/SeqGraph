@@ -1,6 +1,11 @@
-#include <libosw/osw.h>
 #include <seqGraph/seqGraph.h>
-#include <seqGraph/utils.h>
+
+#include <libosw/osw.h>
+#include <math.h>
+#include <seqGraph/debug.h>
+#include <seqGraph/trx.h>
+#include <seqGraph/uniforms.h>
+#include <stdlib.h>
 
 // Local variables
 u32 viewPort_x;
@@ -8,57 +13,50 @@ u32 viewPort_y;
 u32 viewPort_w;
 u32 viewPort_h;
 
+mat4 projectionMatrix;
+
 Color fBuffer[W * H] = {0};
 Color clearColor;
 
 void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
 
-void sgSetClearColor(Color c) { clearColor = c; }
+void sgSetClearColor(Color c) {
+  clearColor = c;
+  // TODO: Move this somewhere appropiate.
+  makeProjectionMatrix(projectionMatrix, 70, 100, 0.1);
+}
 
-void sgClearColor()
-{
-  for (int i = 0; i < W * H; i++)
-  {
+void sgClearColor() {
+  for (int i = 0; i < W * H; i++) {
     fBuffer[i] = clearColor;
   }
 }
 
-void sgPokePixel(u32 x, u32 y, Color c)
-{
+void sgPokePixel(u32 x, u32 y, Color c) {
   int dest = W * y + x;
-  if (dest < W * H && dest > 0)
-  {
-    LOG("Drawing at: (%d, %d)\n", x, y);
+  if (dest < W * H && dest > 0) {
+    // LOG("Drawing at: (%d, %d)\n", x, y);
     fBuffer[dest] = c;
-  }
-  else if (dest == W * H)
-  {
+  } else if (dest == W * H) {
     LOG("Drawing at: (%d, %d)\n", x, y);
     fBuffer[dest - 1] = c;
-  }
-  else if (dest == 0)
-  {
+  } else if (dest == 0) {
     LOG("Drawing at: (%d, %d)\n", x, y);
     fBuffer[0] = c;
-  }
-  else
-  {
+  } else {
     LOG("Out of bounds: %d\n", dest);
   }
 }
 
-void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h)
-{
+void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h) {
   viewPort_x = x_0;
   viewPort_y = y_0;
   viewPort_w = w;
   viewPort_h = h;
 }
 
-void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count)
-{
-  switch (type)
-  {
+void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count) {
+  switch (type) {
   case sgPoint:
     _sgDrawPoints(vertex, count);
     break;
@@ -72,10 +70,8 @@ void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count)
 }
 
 /// Internal functions
-void _sgDrawPoints(Vertex vertex[], u32 count)
-{
-  for (int i = 0; i < count; i++)
-  {
+void _sgDrawPoints(Vertex vertex[], u32 count) {
+  for (int i = 0; i < count; i++) {
 
     vec3 current = {vertex[i].position[0], vertex[i].position[1]};
     LOG("Current point: (%f, %f)\n", current[0], current[1]);
@@ -87,16 +83,15 @@ void _sgDrawPoints(Vertex vertex[], u32 count)
 
     f32 w = vert[3];
 
+    perspectiveCorrection(vert);
+    LOG("Perspective correction result:\n", 0);
+    LOGV3("P", current);
+
     // Clipping
-    if (fabs(current[1]) > w || fabs(current[0]) > w)
-    {
+    if (fabs(current[1]) > w || fabs(current[0]) > w) {
       LOG("Clipped point: (%f, %f)\n", current[0], current[1]);
       break;
     }
-
-    perspectiveCorrection(&current[0], &current[1], w);
-    LOG("Perspective correction result:\n", 0);
-    LOGV3("P", current);
 
     viewportTransformation(&current[0], &current[1]);
     LOG("Vieport transformation result:\n", 0);
@@ -118,13 +113,13 @@ void _sgDrawPoints(Vertex vertex[], u32 count)
   }
 }
 
-void _sgDrawLines(Vertex vertex[], u32 count)
-{
+void _sgDrawLines(Vertex vertex[], u32 count) {
   /// Iterate over pairs of points.
-  for (int i = 0; i < count - 1; i++)
-  {
-    vec3 first = {vertex[i].position[0], vertex[i].position[1], vertex[i].position[2]};
-    vec3 next = {vertex[i + 1].position[0], vertex[i + 1].position[1], vertex[i + 1].position[2]};
+  for (int i = 0; i < count - 1; i++) {
+    vec3 first = {vertex[i].position[0], vertex[i].position[1],
+                  vertex[i].position[2]};
+    vec3 next = {vertex[i + 1].position[0], vertex[i + 1].position[1],
+                 vertex[i + 1].position[2]};
 
     Buffer bufferFirst = {0};
     Buffer bufferNext = {0};
@@ -140,31 +135,35 @@ void _sgDrawLines(Vertex vertex[], u32 count)
 
     f32 w = firstOut[3];
 
-    LOG("Vertex Shader: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Vertex Shader: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1],
+        nextOut[0], nextOut[1]);
 
+    perspectiveCorrection(firstOut);
+    perspectiveCorrection(nextOut);
+
+    LOG("Perspective: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1],
+        nextOut[0], nextOut[1]);
+    //
     // Clipping
     if (firstOut[1] > w || firstOut[1] < -w || firstOut[0] > w ||
-        firstOut[0] < -w)
-    {
+        firstOut[0] < -w) {
       LOG("Clipped point (%f, %f)", firstOut[0], firstOut[1]);
       break;
     }
 
-    LOG("Clipping: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
-
-    perspectiveCorrection(&firstOut[0], &firstOut[1], firstOut[3]);
-    perspectiveCorrection(&nextOut[0], &nextOut[1], nextOut[3]);
-
-    LOG("Perspective: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Clipping: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0],
+        nextOut[1]);
 
     viewportTransformation(&firstOut[0], &firstOut[1]);
     viewportTransformation(&nextOut[0], &nextOut[1]);
 
-    LOG("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0], nextOut[1]);
+    LOG("Viewport: (%f, %f) - (%f, %f)\n", firstOut[0], firstOut[1], nextOut[0],
+        nextOut[1]);
 
     // Rasterization.
     Fragment fragments[(int)ceil(sqrt(W * W + H * H))];
-    int size = _rasterizeLine((int)firstOut[0], (int)firstOut[1], (int)nextOut[0], (int)nextOut[1], fragments);
+    int size = _rasterizeLine((int)firstOut[0], (int)firstOut[1],
+                              (int)nextOut[0], (int)nextOut[1], fragments);
 
     LOG("\nCOMPLETED RASTERIZATION STAGE.\n\n", 0);
 
@@ -172,27 +171,26 @@ void _sgDrawLines(Vertex vertex[], u32 count)
     Color finalColor = vec4ToColor(color);
 
     // TODO: Implement fragment shader.
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
       sgPokePixel(fragments[i][0], fragments[i][1], finalColor);
     }
   }
 }
 
-void _sgDrawTriangles(Vertex vertex[], u32 count)
-{
+void _sgDrawTriangles(Vertex vertex[], u32 count) {
   LOG("Starting triangle drawing\n", 0);
 
-  if (count < 3)
-  {
+  if (count < 3) {
     return;
   }
 
-  for (int i = 0; i < count - 2; i++)
-  {
-    vec3 a = {vertex[i].position[0], vertex[i].position[1], vertex[i].position[2]};
-    vec3 b = {vertex[i + 1].position[0], vertex[i + 1].position[1], vertex[i + 1].position[2]};
-    vec3 c = {vertex[i + 2].position[0], vertex[i + 2].position[1], vertex[i + 2].position[2]};
+  for (int i = 0; i < count - 2; i++) {
+    vec3 a = {vertex[i].position[0], vertex[i].position[1],
+              vertex[i].position[2]};
+    vec3 b = {vertex[i + 1].position[0], vertex[i + 1].position[1],
+              vertex[i + 1].position[2]};
+    vec3 c = {vertex[i + 2].position[0], vertex[i + 2].position[1],
+              vertex[i + 2].position[2]};
 
     LOGV3("A", a);
     LOGV3("B", b);
@@ -211,40 +209,37 @@ void _sgDrawTriangles(Vertex vertex[], u32 count)
     __default_vert_shader(outB, b, bufB);
     __default_vert_shader(outC, c, bufC);
 
-    f32 w = outA[3];
     LOG("Vertex shader results: \n", 0);
 
     LOGV4("A", outA);
     LOGV4("B", outB);
     LOGV4("C", outC);
 
-    // Clipping
-    if (fabs(outA[0]) > w || fabs(outA[1]) > w)
-    {
-      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
-      break;
-    }
-    if (fabs(outB[0]) > w || fabs(outB[1]) > w)
-    {
-      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
-      break;
-    }
-    if (fabs(outC[0]) > w || fabs(outC[1]) > w)
-    {
-      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
-      break;
-    }
-
-    LOG("No points clipped\n", 0);
-
-    perspectiveCorrection(&outA[0], &outA[1], w);
-    perspectiveCorrection(&outB[0], &outB[1], w);
-    perspectiveCorrection(&outC[0], &outC[1], w);
-
+    perspectiveCorrection(outA);
+    perspectiveCorrection(outB);
+    perspectiveCorrection(outC);
     LOG("Perspective correction result\n", 0);
     LOGV4("A", outA);
     LOGV4("B", outB);
     LOGV4("C", outC);
+
+    // Clipping
+    if (fabs(outA[0]) > outA[3] || fabs(outA[1]) > outA[3]) {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+
+    if (fabs(outB[0]) > outB[3] || fabs(outB[1]) > outB[3]) {
+      LOG("Clipped point (%f, %f)", outB[0], outB[1]);
+      break;
+    }
+
+    if (fabs(outC[0]) > outC[3] || fabs(outC[1]) > outC[3]) {
+      LOG("Clipped point (%f, %f)", outC[0], outC[1]);
+      break;
+    }
+
+    LOG("No points clipped\n", 0);
 
     viewportTransformation(&outA[0], &outA[1]);
     viewportTransformation(&outB[0], &outB[1]);
@@ -263,22 +258,22 @@ void _sgDrawTriangles(Vertex vertex[], u32 count)
     int size = _rasterizeTriangle(rasterA, rasterB, rasterC, fragments);
 
     LOG("Completed rasterization stage.\n\n", 0);
-    LOG("%d rasterized fragments", size);
+    LOG("%d rasterized fragments\n", size);
 
     /// Fragment shader
     vec4 colorA = {1.0, 0.0, 0.0, 1.0};
     vec4 colorB = {0.0, 1.0, 0.0, 1.0};
     vec4 colorC = {0.0, 0.0, 1.0, 1.0};
 
-    for (u32 j = 0; j < size; j++)
-    {
+    for (u32 j = 0; j < size; j++) {
       vec3 coords;
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
 
       vec3 interpColor;
-      interpolate(interpColor, vertex[i].color, vertex[i + 1].color, vertex[i + 2].color, coords);
+      interpolate(interpColor, vertex[i].color, vertex[i + 1].color,
+                  vertex[i + 2].color, coords);
 
       vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
       Color finalColor = vec4ToColor(alphaColor);
@@ -289,8 +284,7 @@ void _sgDrawTriangles(Vertex vertex[], u32 count)
 }
 
 /// Rasterization functions
-int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
-{
+int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest) {
   int dx = abs(x0 - x1);
   int dy = abs(y1 - y0);
   int p = 2 * (dy - dx);
@@ -307,18 +301,13 @@ int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
 
   int current = 0;
 
-  if (dx > dy)
-  {
-    for (int i = 0; i < dx; i++)
-    {
+  if (dx > dy) {
+    for (int i = 0; i < dx; i++) {
       x += xIncrement;
 
-      if (p < 0)
-      {
+      if (p < 0) {
         p += twoDy;
-      }
-      else
-      {
+      } else {
         y += yIncrement;
         p += twoDyDx;
       }
@@ -327,19 +316,13 @@ int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
       dest[current][1] = y;
       current += 1;
     }
-  }
-  else
-  {
-    for (int i = 0; i < dy; i++)
-    {
+  } else {
+    for (int i = 0; i < dy; i++) {
       y += yIncrement;
 
-      if (p < 0)
-      {
+      if (p < 0) {
         p += twoDx;
-      }
-      else
-      {
+      } else {
         x += xIncrement;
         p += twoDxDy;
       }
@@ -352,8 +335,7 @@ int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment *dest)
   return current;
 }
 
-int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
-{
+int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[]) {
   // TODO: Use a more efficient approach.
   int current = 0;
   LOG("Computing bounding box limits\n", 0);
@@ -365,12 +347,9 @@ int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
 
   LOG("Result: [%f,%f]x[%f,%f]\n", xMin, yMin, xMax, yMax);
 
-  for (int i = xMin; i < xMax; i++)
-  {
-    for (int j = yMin; j < yMax; j++)
-    {
-      if (isInTriangle(x, y, z, i, j))
-      {
+  for (int i = xMin; i < xMax; i++) {
+    for (int j = yMin; j < yMax; j++) {
+      if (isInTriangle(x, y, z, i, j)) {
         dest[current][0] = i;
         dest[current][1] = j;
         current += 1;
@@ -382,16 +361,20 @@ int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[])
 }
 
 /// Shaders
-void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer)
-{
-  out[0] = vert[0];
-  out[1] = vert[1];
-  out[2] = vert[2];
-  out[3] = 1.0;
+void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
+  // Coordinate spaces transformation
+  // Proj * View * Model * vert;
+  vec4 in = {vert[0], vert[1], vert[2], 1.0};
+  vec4 temp;
+  vec4_matMul(temp, projectionMatrix, in);
+
+  out[0] = temp[0];
+  out[1] = temp[1];
+  out[2] = temp[2];
+  out[3] = temp[3];
 }
 
-bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
-{
+bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer) {
   color[0] = 0.0;
   color[1] = 0.0;
   color[2] = 1.0;
@@ -405,8 +388,7 @@ bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer)
 /// @brief [-1,1] x [-1,1] -> [0, W] x [0, H] transformation.
 /// @param x
 /// @param y
-void viewportTransformation(f32 *x, f32 *y)
-{
-  *x = (viewPort_w / 2) * (*x + 1) + viewPort_x;
-  *y = (viewPort_h / 2) * (1 - *y) + viewPort_y;
+void viewportTransformation(f32 *x, f32 *y) {
+  *x = ((float)viewPort_w / 2) * (*x + 1) + viewPort_x;
+  *y = ((float)viewPort_h / 2) * (1 - *y) + viewPort_y;
 }
