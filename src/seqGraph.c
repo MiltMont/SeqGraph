@@ -392,3 +392,127 @@ void viewportTransformation(f32 *x, f32 *y) {
   *x = ((float)viewPort_w / 2) * (*x + 1) + viewPort_x;
   *y = ((float)viewPort_h / 2) * (1 - *y) + viewPort_y;
 }
+
+///
+/// Indexed rendering
+///
+
+/// @brief Graphics pipeline implementation.
+/// @param type The type of primitive to render.
+/// @param vertex An array of vertices.
+/// @param index An array of indices.
+/// @param count The size of the provided index array.
+void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 indices[], u32 count) {
+  switch (type) {
+  case sgPoint:
+    _sgDrawIndexedPoints(vertex, indices, count);
+    break;
+  case sgLine:
+    _sgDrawIndexedLines(vertex, indices, count);
+    break;
+  case sgTriangle:
+    _sgDrawIndexedTriangles(vertex, indices, count);
+    break;
+  }
+}
+
+void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {}
+void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {}
+
+void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
+  LOG("Starting indexed triangle drawing\n", 0);
+
+  if (count < 3) {
+    return; 
+  }
+
+  for (u32 i = 0; i < count - 2; i++) {
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]]. position[2]};
+    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]]. position[2]};
+    vec3 c = {vertex[indices[i+2]].position[0], vertex[indices[i+2]].position[1], vertex[indices[i+2]]. position[2]};
+  
+    LOGV3("A",a);
+    LOGV3("B",b);
+    LOGV3("C",c);
+
+    Buffer bufA = {0};
+    Buffer bufB = {0};
+    Buffer bufC = {0};
+
+    vec4 outA; 
+    vec4 outB; 
+    vec4 outC; 
+
+    // Vertex shader stage
+    __default_vert_shader(outA, a, bufA);
+    __default_vert_shader(outB, b, bufB);
+    __default_vert_shader(outC, c, bufC);
+
+    LOG("Vertex shader results: \n", 0);
+
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    perspectiveCorrection(outA);
+    perspectiveCorrection(outB);
+    perspectiveCorrection(outC);
+    LOG("Perspective correction result\n", 0);
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    // Clipping
+    if (fabs(outA[0]) > outA[3] || fabs(outA[1]) > outA[3]) {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+
+    if (fabs(outB[0]) > outB[3] || fabs(outB[1]) > outB[3]) {
+      LOG("Clipped point (%f, %f)", outB[0], outB[1]);
+      break;
+    }
+
+    if (fabs(outC[0]) > outC[3] || fabs(outC[1]) > outC[3]) {
+      LOG("Clipped point (%f, %f)", outC[0], outC[1]);
+      break;
+    }
+
+    LOG("No points clipped\n", 0);
+
+    viewportTransformation(&outA[0], &outA[1]);
+    viewportTransformation(&outB[0], &outB[1]);
+    viewportTransformation(&outC[0], &outC[1]);
+    LOG("Viewport transformation result\n", 0);
+    LOGV4("A", outA);
+    LOGV4("B", outB);
+    LOGV4("C", outC);
+
+    vec2 rasterA = {outA[0], outA[1]};
+    vec2 rasterB = {outB[0], outB[1]};
+    vec2 rasterC = {outC[0], outC[1]};
+
+    /// Rasterization
+    Fragment fragments[W * H];
+    int size = _rasterizeTriangle(rasterA, rasterB, rasterC, fragments);
+
+    LOG("Completed rasterization stage.\n\n", 0);
+    LOG("%d rasterized fragments\n", size);
+
+    for (u32 j = 0; j < size; j++) {
+      vec3 coords;
+      vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
+
+      getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
+
+      vec3 interpColor;
+      interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
+                  vertex[indices[i+2]].color, coords);
+
+      vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
+      Color finalColor = vec4ToColor(alphaColor);
+
+      sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
+    }
+  }
+}

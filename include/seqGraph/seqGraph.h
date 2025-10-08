@@ -25,6 +25,13 @@ void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h);
 /// @param count The size of the provided vertex array.
 void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count);
 
+/// @brief Graphics pipeline implementation.
+/// @param type The type of primitive to render.
+/// @param vertex An array of vertices.
+/// @param index An array of indices.
+/// @param count The size of the provided index array.
+void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 index[], u32 count);
+
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer);
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer);
 
@@ -35,6 +42,12 @@ void viewportTransformation(f32 *x, f32 *y);
 void _sgDrawPoints(Vertex vertex[], u32 count);
 void _sgDrawLines(Vertex vertex[], u32 count);
 void _sgDrawTriangles(Vertex vertex[], u32 count);
+
+/// Indexed rendering
+void _sgDrawIndexedPoints(Vertex vertex[], u32 index[], u32 count);
+void _sgDrawIndexedLines(Vertex vertex[], u32 index[], u32 count);
+void _sgDrawIndexedTriangles(Vertex vertex[], u32 index[], u32 count);
+
 
 /// @brief This function fills a Fragment array and returns the length of the
 /// resulting array.

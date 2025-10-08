@@ -21,15 +21,18 @@ int main(int argc, char *argv[]) {
   Vertex zero = {.position = {0.0, 0.0, 4.0}, .color = {0.0, 0.0, 0.0}};
   Vertex e_x = {.position = {1.0, 0.0, 4.0}, .color = {1.0, 0.0, 0.0}};
   Vertex e_y = {.position = {0.0, 1.0, 4.0}, .color = {0.0, 1.0, 0.0}};
-  Vertex e_z = {.position = {0.0, 0.0, 6.0}, .color = {0.0, 0.0, 1.0}};
+  Vertex e_z = {.position = {0.0, 0.0, 12.0}, .color = {0.0, 0.0, 1.0}};
 
   Vertex points[] = {
-    e_x, e_y, e_z, // f1 
-    e_x, zero, e_y, // f2
-    e_x, zero, e_z,  // f3
-    // zero, e_x, e_z
+    zero, e_x, e_y, e_z
   };
 
+  u32 indices[] = {
+    0, 1, 2, 
+    0, 3, 2,
+    0, 3, 1, 
+
+  };
 
 
   while (1) {
@@ -37,14 +40,17 @@ int main(int argc, char *argv[]) {
 
     sgClearColor();
     OSW_Poll();
-    sgDrawVertex(sgTriangle, points, 9);
+    sgDrawIndexedVertex(sgTriangle, points, indices, 9);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-    rotateZ(points[0].position, 1);
-    rotateZ(points[1].position, 1);
-    rotateZ(points[2].position, 1);
+
+    // rotateZ(points[0].position, 1);
     rotateZ(points[3].position, 1);
-    rotateZ(points[4].position, 1);
+    rotateZ(points[2].position, 1);
+    // rotateZ(points[3].position, 1);
+    // rotateZ(points[3].position, 1);
+
   }
+
   return 0;
 }
