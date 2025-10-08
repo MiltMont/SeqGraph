@@ -18,19 +18,18 @@ int main(int argc, char *argv[]) {
 
   f32 timer = 0;
 
-  Vertex zero = {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}};
-  Vertex e_x = {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}};
-  Vertex e_y = {.position = {0.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}};
-  Vertex e_z = {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}};
 
   Vertex points[] = {
-    zero, e_x, e_y, e_z
+  {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}},
+  {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}},
+  {.position = {0.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}},
+  {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}},
   };
 
   u32 indices[] = {
-    0, 1, 2, 
+    // 2, 0, 1,
     0, 3, 2,
-    0, 3, 1, 
+    1,2,3
   };
 
 
@@ -39,10 +38,13 @@ int main(int argc, char *argv[]) {
 
     sgClearColor();
     OSW_Poll();
-    sgDrawIndexedVertex(sgTriangle, points, indices, 9);
+    sgDrawIndexedVertex(sgTriangle, points, indices, 6);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-    rotateX(points[3].position, 1);
+
+    rotateY(points[3].position, 1);
+    rotateY(points[2].position, 1);
+    rotateY(points[1].position, 1);
   }
 
   return 0;
