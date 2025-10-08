@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#define PI 3.14159
+
 f32 *vec3_add(vec3 dest, const vec3 v, const vec3 u) {
   vec3 res;
   res[0] = v[0] + u[0];
@@ -252,3 +254,24 @@ void mat4_ortho(mat4 m, float left, float right, float bottom, float top,
                 float near, float far);
 void mat4_perspective(mat4 m, float fovy, float aspect, float znear,
                       float zfar);
+
+void rotateZ(vec3 point, f32 angle) { 
+  f32 radAngle = angle * (PI / 180);
+
+  point[0] = point[0] * cos(radAngle) - point[1] * sin(radAngle); 
+  point[1] = point[0] * sin(radAngle) + point[1] * cos(radAngle); 
+};
+
+void rotateY(vec3 point, f32 angle) { 
+  f32 radAngle = angle * (PI / 180);
+
+  point[0] = point[0] * cos(radAngle) + point[2] * sin(radAngle); 
+  point[2] = point[2] * cos(radAngle) - point[0] * sin(radAngle);
+};
+
+void rotateX(vec3 point, f32 angle) { 
+  f32 radAngle = angle * (PI / 180);
+
+  point[1] = point[1] * cos(radAngle) - point[2] * sin(radAngle); 
+  point[2] = point[1] * sin(radAngle) + point[2] * cos(radAngle); 
+};

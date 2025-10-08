@@ -60,4 +60,7 @@ void vec3Cross(vec3 dest, const vec3 v, const vec3 u);
 
 // f32* mat4_perspective();
 
+void rotateZ(vec3 point, f32 angle);
+void rotateY(vec3 point, f32 angle);
+void rotateX(vec3 point, f32 angle);
 #endif /*__TRX_H__*/
