@@ -365,9 +365,10 @@ int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[]) {
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
   // Coordinate spaces transformation
   // Proj * View * Model * vert;
-  vec4 in = {vert[0], vert[1], vert[2], 1.0};
+  vec4 in = {vert[0], vert[1], vert[2] + 5, 1.0};
   // vec4 temp;
   // vec4_matMul(temp, projectionMatrix, in);
+
   perspectiveMatrix(in);
 
   out[0] = in[0];
@@ -428,7 +429,7 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     return; 
   }
 
-  for (u32 i = 0; i < count - 2; i++) {
+  for (u32 i = 0; i < count - 2; i = i+3){
     vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]]. position[2]};
     vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]]. position[2]};
     vec3 c = {vertex[indices[i+2]].position[0], vertex[indices[i+2]].position[1], vertex[indices[i+2]]. position[2]};
@@ -506,6 +507,9 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
+      LOGV4("COLORA", vertex[indices[i]].color);
+      LOGV4("COLORB", vertex[indices[i+1]].color);
+      LOGV4("COLORC", vertex[indices[i+2]].color);
 
       vec3 interpColor;
       interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
@@ -513,7 +517,7 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
 
       vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
       Color finalColor = vec4ToColor(alphaColor);
-
+      LOGV4("FINAL", alphaColor);
       sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
     }
   }

@@ -18,10 +18,10 @@ int main(int argc, char *argv[]) {
 
   f32 timer = 0;
 
-  Vertex zero = {.position = {0.0, 0.0, 4.0}, .color = {0.0, 0.0, 0.0}};
-  Vertex e_x = {.position = {1.0, 0.0, 4.0}, .color = {1.0, 0.0, 0.0}};
-  Vertex e_y = {.position = {0.0, 1.0, 4.0}, .color = {0.0, 1.0, 0.0}};
-  Vertex e_z = {.position = {0.0, 0.0, 12.0}, .color = {0.0, 0.0, 1.0}};
+  Vertex zero = {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}};
+  Vertex e_x = {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}};
+  Vertex e_y = {.position = {0.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}};
+  Vertex e_z = {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}};
 
   Vertex points[] = {
     zero, e_x, e_y, e_z
@@ -34,19 +34,15 @@ int main(int argc, char *argv[]) {
   };
 
 
-    // rotateX(points[0].position, 90);
-    // rotateX(points[1].position, 90);
-    // rotateX(points[2].position, 90);
-    // rotateX(points[3].position, 90);
   while (1) {
     timer += 0.01;
 
     sgClearColor();
     OSW_Poll();
-    sgDrawIndexedVertex(sgTriangle, points, indices, 3);
+    sgDrawIndexedVertex(sgTriangle, points, indices, 9);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-
+    rotateX(points[3].position, 1);
   }
 
   return 0;
