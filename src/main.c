@@ -31,24 +31,21 @@ int main(int argc, char *argv[]) {
     0, 1, 2, 
     0, 3, 2,
     0, 3, 1, 
-
   };
 
 
+    // rotateX(points[0].position, 90);
+    // rotateX(points[1].position, 90);
+    // rotateX(points[2].position, 90);
+    // rotateX(points[3].position, 90);
   while (1) {
     timer += 0.01;
 
     sgClearColor();
     OSW_Poll();
-    sgDrawIndexedVertex(sgTriangle, points, indices, 9);
+    sgDrawIndexedVertex(sgTriangle, points, indices, 3);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-
-    // rotateZ(points[0].position, 1);
-    rotateZ(points[3].position, 1);
-    rotateZ(points[2].position, 1);
-    // rotateZ(points[3].position, 1);
-    // rotateZ(points[3].position, 1);
 
   }
 

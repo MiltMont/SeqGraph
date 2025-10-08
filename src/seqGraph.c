@@ -5,6 +5,7 @@
 #include <seqGraph/debug.h>
 #include <seqGraph/trx.h>
 #include <seqGraph/uniforms.h>
+#include <seqGraph/constants.h>
 #include <stdlib.h>
 
 // Local variables
@@ -365,13 +366,14 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
   // Coordinate spaces transformation
   // Proj * View * Model * vert;
   vec4 in = {vert[0], vert[1], vert[2], 1.0};
-  vec4 temp;
-  vec4_matMul(temp, projectionMatrix, in);
+  // vec4 temp;
+  // vec4_matMul(temp, projectionMatrix, in);
+  perspectiveMatrix(in);
 
-  out[0] = temp[0];
-  out[1] = temp[1];
-  out[2] = temp[2];
-  out[3] = temp[3];
+  out[0] = in[0];
+  out[1] = in[1];
+  out[2] = in[2];
+  out[3] = in[3];
 }
 
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer) {
@@ -463,17 +465,17 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOGV4("C", outC);
 
     // Clipping
-    if (fabs(outA[0]) > outA[3] || fabs(outA[1]) > outA[3]) {
+    if (shouldClip(outA, 45, 0.01, 100)) {
       LOG("Clipped point (%f, %f)", outA[0], outA[1]);
       break;
     }
 
-    if (fabs(outB[0]) > outB[3] || fabs(outB[1]) > outB[3]) {
+    if (shouldClip(outB, fov, near, far)) {
       LOG("Clipped point (%f, %f)", outB[0], outB[1]);
       break;
     }
 
-    if (fabs(outC[0]) > outC[3] || fabs(outC[1]) > outC[3]) {
+    if (shouldClip(outC, fov, near, far)) {
       LOG("Clipped point (%f, %f)", outC[0], outC[1]);
       break;
     }
@@ -515,4 +517,11 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
       sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
     }
   }
+}
+
+void perspectiveMatrix(vec4 in)  {
+  in[0] = S * in[0];
+  in[1] = S * in[1];
+  in[2] =  in[2] * (far / (far-near)) - (far*near)/(far-near);
+  in[3] =  in[2];
 }
