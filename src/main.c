@@ -1,6 +1,7 @@
 #include <libosw/osw.h>
 #include <math.h>
 #include <seqGraph/seqGraph.h>
+#include <seqGraph/trx.h>
 
 int main(int argc, char *argv[]) {
   // Create window and check for errors
@@ -10,28 +11,41 @@ int main(int argc, char *argv[]) {
     return err;
   }
 
-  Color background = 0xfffffffff;
+  Color background = 0xffffff;
 
   sgSetClearColor(background);
   sgViewport(0, 0, W, H);
 
   f32 timer = 0;
 
-  Vertex a = {.position = {0.0, 0.0, 2.0}, .color = {1.0, 0.0, 0.0}};
-  Vertex b = {.position = {1.0, 0.0, 2.0}, .color = {1.0, 0.0, 0.0}};
-  Vertex c = {.position = {0.0, 1.0, 2.0}, .color = {1.0, 0.0, 0.0}};
-  Vertex d = {.position = {1.0, 1.0, 2.0}, .color = {1.0, 0.0, 0.0}};
 
-  Vertex points[] = {a, b, c, b, c, d};
+  Vertex points[] = {
+  {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}},
+  {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}},
+  {.position = {0.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}},
+  {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}},
+  };
+
+  u32 indices[] = {
+    // 2, 0, 1,
+    0, 3, 2,
+    1,2,3
+  };
+
 
   while (1) {
     timer += 0.01;
 
     sgClearColor();
     OSW_Poll();
-    sgDrawVertex(sgTriangle, points, 6);
+    sgDrawIndexedVertex(sgTriangle, points, indices, 6);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
+
+    rotateY(points[3].position, 1);
+    rotateY(points[2].position, 1);
+    rotateY(points[1].position, 1);
   }
+
   return 0;
 }

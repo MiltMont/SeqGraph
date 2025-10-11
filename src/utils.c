@@ -4,12 +4,39 @@
 #include <math.h>
 #include <seqGraph/debug.h>
 #include <seqGraph/trx.h>
+#include <seqGraph/constants.h>
+
+bool shouldClip(vec3 point, f32 FOV, f32 n, f32 f) {
+  LOGV3("Clipping:", point);
+  f32 fovRad = FOV * (PI/180);
+
+  vec3 r = {-sin(fovRad), 0.0, cos(fovRad)};
+  vec3 l = {sin(fovRad), 0.0, cos(fovRad)};
+  vec3 z = {0.0,0.0,1.0};
+
+  if(vec3_dot(point, r)<=0) {
+    return true;
+  }
+
+  if(vec3_dot(point, l)<=0) {
+    return true;
+  }
+
+  if (vec3_dot(point, z) <= n) {
+    return true;
+  }
+
+  if (vec3_dot(point, z) >= f) {
+    return true;
+  }
+
+  return false;
+}; 
 
 void perspectiveCorrection(vec4 point) {
   if (point[3] != 0) {
     point[0] = point[0] / point[3];
     point[1] = point[1] / point[3];
-    point[2] = point[2] / point[3];
   } else {
     LOG("point[3] == 0!", 0);
   }

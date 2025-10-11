@@ -9,7 +9,7 @@ SeqGraphTest: src/main.c
 	gcc $(SRCS) -o SeqGraphTest $(LDFLAGS) 
 
 SeqGraphDebug: src/main.c 
-	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG
+	gcc $(SRCS) -o SeqGraphDebug $(LDFLAGS) -DDEBUG -g
 
 SeqGraphProf: src/main.c
 	gcc $(SRCS) -o SeqGraphProfile $(LDFLAGS) -pg

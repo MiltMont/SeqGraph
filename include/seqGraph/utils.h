@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 // Graphics utils
+bool shouldClip(vec3 point, f32 FOV, f32 n, f32 f);
 
 void perspectiveCorrection(vec4 point);
 /// @brief Check if a point (x,y) is in the triangle formed by `a`,`b`,`c`.
