@@ -16,7 +16,8 @@ u32 viewPort_h;
 
 mat4 projectionMatrix;
 
-Color fBuffer[W * H] = {0};
+Color fBuffer[W * H + 1];
+f32 zBuffer[W * H + 1];
 Color clearColor;
 
 void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
@@ -25,6 +26,12 @@ void sgSetClearColor(Color c) {
   clearColor = c;
   // TODO: Move this somewhere appropiate.
   makeProjectionMatrix(projectionMatrix, 70, 100, 0.1);
+}
+
+void sgClearZBuffer() {
+  for (int i = 0; i < W * H + 1; i++) {
+    zBuffer[i] = far;
+  }
 }
 
 void sgClearColor() {
@@ -47,6 +54,22 @@ void sgPokePixel(u32 x, u32 y, Color c) {
   } else {
     LOG("Out of bounds: %d\n", dest);
   }
+}
+
+void sgPokeBuffer(u32 x, u32 y, f32 z) {
+  int dest = W * y + x;
+
+  if (dest <= W * H && dest > 0) {
+    zBuffer[dest- 1] = z;
+  } 
+   else {
+    LOG("Out of bounds: %d\n", dest);
+  }
+}
+
+bool shouldDraw(u32 x, u32 y, f32 z) {
+  int dest = W * y + x; 
+  return zBuffer[dest] > z ? true : false;
 }
 
 void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h) {
@@ -502,23 +525,41 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOG("Completed rasterization stage.\n\n", 0);
     LOG("%d rasterized fragments\n", size);
 
+    // Iterating over rasterized fragments. 
     for (u32 j = 0; j < size; j++) {
-      vec3 coords;
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
-      getBarycentricCoordinates(coords, rasterA, rasterB, rasterC, current);
-      LOGV4("COLORA", vertex[indices[i]].color);
-      LOGV4("COLORB", vertex[indices[i+1]].color);
-      LOGV4("COLORC", vertex[indices[i+2]].color);
+      // Check if fragment is in bounds.
+      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] >= 0 ) {
 
-      vec3 interpColor;
-      interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
+        vec3 coords;
+
+        // Interpolate z-index. 
+        getBarycentricCoordinates(coords, outA, outB, outC, current);
+        f32 zIndex = outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
+
+        if (shouldDraw(current[0], current[1], zIndex)) {
+          // Update z-index
+          sgPokeBuffer(current[0], current[1], zIndex); 
+          LOGV4("COLORA", vertex[indices[i]].color);
+          LOGV4("COLORB", vertex[indices[i+1]].color);
+          LOGV4("COLORC", vertex[indices[i+2]].color);
+
+          vec3 interpColor;
+          interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
                   vertex[indices[i+2]].color, coords);
 
-      vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
-      Color finalColor = vec4ToColor(alphaColor);
-      LOGV4("FINAL", alphaColor);
-      sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
+          vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
+          Color finalColor = vec4ToColor(alphaColor);
+          LOGV4("FINAL", alphaColor);
+
+          LOG("zIndex={%f}", zIndex);
+          sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
+        }
+
+
+      }
+
     }
   }
 }

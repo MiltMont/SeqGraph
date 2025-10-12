@@ -12,9 +12,12 @@ void sgSetClearColor(Color c);
 
 /// Clear the frambuffer color.
 void sgClearColor(void);
+void sgClearZBuffer(void);
 
 /// Sets pixel at coordinate (x,y) to Color.
 void sgPokePixel(u32 x, u32 y, Color c);
+void sgPokeBuffer(u32 x, u32 y, f32 z);
+bool shouldDraw(u32 x, u32 y, f32 z);
 
 /// Sets viewport variables.
 void sgViewport(u32 x_0, u32 y_0, u32 w, u32 h);

@@ -27,24 +27,26 @@ int main(int argc, char *argv[]) {
   };
 
   u32 indices[] = {
-    // 2, 0, 1,
-    0, 3, 2,
-    1,2,3
+    1,2,3,  // f1
+    2, 0, 1, // f2
+    0, 2, 3, // f3
+    // 0, 3, 2,
   };
 
 
   while (1) {
     timer += 0.01;
-
     sgClearColor();
+    sgClearZBuffer();
+
     OSW_Poll();
     sgDrawIndexedVertex(sgTriangle, points, indices, 6);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
 
-    rotateY(points[3].position, 1);
-    rotateY(points[2].position, 1);
-    rotateY(points[1].position, 1);
+    rotateY(points[3].position, 0.1);
+    rotateY(points[2].position, 0.1);
+    rotateY(points[1].position, 0.1);
   }
 
   return 0;
