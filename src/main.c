@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
   // Create window and check for errors
-  u32 err = OSW_Init("SeqGraph Window", W * 2, H * 2, 0);
+  u32 err = OSW_Init("SeqGraph", W * 2, H * 2, 0);
 
   if (err != OSW_OK) {
     return err;
@@ -62,12 +62,12 @@ int main(int argc, char *argv[]) {
     // rotateY(trianglePoints[3].position, 1);
     // rotateY(trianglePoints[2].position, 1);
     // rotateY(trianglePoints[1].position, 1);
-    // rotateZ(trianglePoints[3].position, 1);
-    // rotateZ(trianglePoints[2].position, 1);
-    // rotateZ(trianglePoints[1].position, 1);
-    // rotateX(trianglePoints[3].position, 1);
-    // rotateX(trianglePoints[2].position, 1);
-    // rotateX(trianglePoints[1].position, 1);
+    rotateZ(trianglePoints[3].position, 1);
+    rotateZ(trianglePoints[2].position, 1);
+    rotateZ(trianglePoints[1].position, 1);
+    rotateX(trianglePoints[3].position, 1);
+    rotateX(trianglePoints[2].position, 1);
+    rotateX(trianglePoints[1].position, 1);
   }
 
   return 0;
