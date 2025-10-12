@@ -20,6 +20,12 @@ Color fBuffer[W * H + 1];
 f32 zBuffer[W * H + 1];
 Color clearColor;
 f32 zClear; 
+Buffer globalBuffer = {0}; 
+
+void sgSetVertexBytes(f32 value, int index) {
+  globalBuffer[index] = value;
+  LOG("BUFFER[0]=%f\n", globalBuffer[index]);
+}
 
 void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
 
@@ -34,6 +40,7 @@ void sgClear() {
   for (int i = 0; i < W * H+1; i++) {
     fBuffer[i] = clearColor;
     zBuffer[i] = zClear;
+    globalBuffer[0] = 0;
   }
 }
 
@@ -380,6 +387,21 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
   out[3] = in[3];
 }
 
+void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
+
+  rotateY(in, buffer[0]);
+  rotateZ(in, buffer[0]);
+
+  vec4 tmp = {in[0], in[1], in[2] + 5, 1.0};
+  perspectiveMatrix(tmp);
+
+
+  out[0] = tmp[0];
+  out[1] = tmp[1];
+  out[2] = tmp[2];
+  out[3] = tmp[3];
+}
+
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer) {
   color[0] = 0.0;
   color[1] = 0.0;
@@ -441,18 +463,18 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOGV3("B",b);
     LOGV3("C",c);
 
-    Buffer bufA = {0};
-    Buffer bufB = {0};
-    Buffer bufC = {0};
+    Buffer bufA = {globalBuffer[0]};
+    Buffer bufB = {globalBuffer[0]};
+    Buffer bufC = {globalBuffer[0]};
 
     vec4 outA; 
     vec4 outB; 
     vec4 outC; 
 
     // Vertex shader stage
-    __default_vert_shader(outA, a, bufA);
-    __default_vert_shader(outB, b, bufB);
-    __default_vert_shader(outC, c, bufC);
+    __defaultVertShader(outA, a, globalBuffer);
+    __defaultVertShader(outB, b, globalBuffer);
+    __defaultVertShader(outC, c, globalBuffer);
 
     LOG("Vertex shader results: \n", 0);
 

@@ -66,18 +66,15 @@ int main(int argc, char *argv[]) {
 
 
   while (1) {
-    timer += 0.01;
+    timer += 0.5;
     sgClear();
 
     OSW_Poll();
+    sgSetVertexBytes(timer, 0);
     sgDrawIndexedVertex(sgTriangle, cubePoints, cubeIndices, 36);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-
-    for (int i = 0; i < 8; i++) {
-      rotateX(cubePoints[i].position, 1);
-      rotateZ(cubePoints[i].position, 1);
-    }
+  
   }
 
   return 0;

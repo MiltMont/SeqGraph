@@ -253,15 +253,22 @@ void mat4_scale(mat4 m, vec3 v) {}
 void rotateZ(vec3 point, f32 angle) { 
   f32 radAngle = angle * (PI / 180);
 
-  point[0] = point[0] * cos(radAngle) - point[1] * sin(radAngle); 
-  point[1] = point[0] * sin(radAngle) + point[1] * cos(radAngle); 
+  f32 x = point[0] * cos(radAngle) - point[1] * sin(radAngle); 
+  f32 y = point[0] * sin(radAngle) + point[1] * cos(radAngle); 
+
+  point[0] = x; 
+  point[1] = y; 
 };
 
 void rotateY(vec3 point, f32 angle) { 
   f32 radAngle = angle * (PI / 180);
 
-  point[0] = point[0] * cos(radAngle) + point[2] * sin(radAngle); 
-  point[2] = point[2] * cos(radAngle) - point[0] * sin(radAngle);
+  f32 x = point[0] * cos(radAngle) + point[2] * sin(radAngle); 
+  f32 z = point[2] * cos(radAngle) - point[0] * sin(radAngle);
+
+  point[0] = x; 
+  point[2] = z;
+
 };
 
 void rotateX(vec3 point, f32 angle) { 
