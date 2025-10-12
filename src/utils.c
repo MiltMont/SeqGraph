@@ -67,7 +67,7 @@ Color vec4ToColor(vec4 color) {
 }
 
 void getBarycentricCoordinates(vec3 dest, vec3 A, vec3 B, vec3 C, vec2 D) {
-  vec3 D3 = {D[0], D[1], 0};
+  vec3 D3 = {D[0], D[1], (A[2] + B[2] + C[2]) / 3};
 
   f32 totalArea = areaOfTriangle(A, B, C);
   f32 alpha = areaOfTriangle(A, B, D3);
@@ -77,6 +77,9 @@ void getBarycentricCoordinates(vec3 dest, vec3 A, vec3 B, vec3 C, vec2 D) {
   dest[2] = alpha / totalArea;
   dest[1] = beta / totalArea;
   dest[0] = gamma / totalArea;
+  if(dest[2] + dest[1] + dest[0] == 1) {
+    LOG("GOOD", 0);
+  }
 }
 
 f32 areaOfTriangle(vec3 A, vec3 B, vec3 C) {

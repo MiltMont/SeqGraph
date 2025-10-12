@@ -19,19 +19,34 @@ int main(int argc, char *argv[]) {
   f32 timer = 0;
 
 
-  Vertex points[] = {
+  Vertex cubePoints[] = {
 
   // Bottom
-  {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}},
-  {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}}, 
-  {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
-  {.position = {1.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
+  {.position = {0.0, 0.0, 0.0}, .color = {1.0, 1.0, 0.0}},
+  {.position = {0.0, 0.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
+  {.position = {1.0, 0.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
+  {.position = {1.0, 0.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 
 
   // Top
-  {.position = {0.0, 1.0, 0.0}, .color = {0.0, 0.0, 0.0}},
-  {.position = {1.0, 1.0, 0.0}, .color = {1.0, 0.0, 0.0}}, 
-  {.position = {0.0, 1.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
-  {.position = {1.0, 1.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
+  {.position = {0.0, 1.0, 0.0}, .color = {1.0, 1.0, 0.0}},
+  {.position = {0.0, 1.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
+  {.position = {1.0, 1.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
+  {.position = {1.0, 1.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 
+  };
+
+  u32 cubeIndices[] = {
+    0, 4, 3, // front face
+    4,7,3, // front face
+    0, 1, 5, // left 
+    0, 5, 4, //left
+    1,2,5, // back 
+    2, 5, 6, // back
+    2, 3, 7, // right 
+    2, 7, 6, // right 
+    4, 5, 7, // top
+    5, 6, 7, // top
+    0, 1, 3, // bottom 
+    1, 2, 3, // bottom
   };
 
   Vertex trianglePoints[] = {
@@ -55,19 +70,14 @@ int main(int argc, char *argv[]) {
     sgClear();
 
     OSW_Poll();
-    sgDrawIndexedVertex(sgTriangle, trianglePoints, indices, 12);
+    sgDrawIndexedVertex(sgTriangle, cubePoints, cubeIndices, 36);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
 
-    // rotateY(trianglePoints[3].position, 1);
-    // rotateY(trianglePoints[2].position, 1);
-    // rotateY(trianglePoints[1].position, 1);
-    rotateZ(trianglePoints[3].position, 1);
-    rotateZ(trianglePoints[2].position, 1);
-    rotateZ(trianglePoints[1].position, 1);
-    rotateX(trianglePoints[3].position, 1);
-    rotateX(trianglePoints[2].position, 1);
-    rotateX(trianglePoints[1].position, 1);
+    for (int i = 0; i < 8; i++) {
+      rotateX(cubePoints[i].position, 1);
+      rotateZ(cubePoints[i].position, 1);
+    }
   }
 
   return 0;
