@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
   Color background = 0xffffff;
 
-  sgSetClearColor(background);
+  sgSetClearColor(background, 100.0);
   sgViewport(0, 0, W, H);
 
   f32 timer = 0;
@@ -33,20 +33,19 @@ int main(int argc, char *argv[]) {
     // 0, 3, 2,
   };
 
+    rotateY(points[3].position, 25);
+    rotateY(points[2].position, 25);
+    rotateY(points[1].position, 25);
 
   while (1) {
     timer += 0.01;
-    sgClearColor();
-    sgClearZBuffer();
+    sgClear();
 
     OSW_Poll();
     sgDrawIndexedVertex(sgTriangle, points, indices, 6);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
 
-    rotateY(points[3].position, 0.1);
-    rotateY(points[2].position, 0.1);
-    rotateY(points[1].position, 0.1);
   }
 
   return 0;

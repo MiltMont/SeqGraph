@@ -19,24 +19,21 @@ mat4 projectionMatrix;
 Color fBuffer[W * H + 1];
 f32 zBuffer[W * H + 1];
 Color clearColor;
+f32 zClear; 
 
 void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
 
-void sgSetClearColor(Color c) {
-  clearColor = c;
+void sgSetClearColor(Color color, f32 zIndex) {
+  clearColor = color;
+  zClear = zIndex;
   // TODO: Move this somewhere appropiate.
   makeProjectionMatrix(projectionMatrix, 70, 100, 0.1);
 }
 
-void sgClearZBuffer() {
-  for (int i = 0; i < W * H + 1; i++) {
-    zBuffer[i] = far;
-  }
-}
-
-void sgClearColor() {
-  for (int i = 0; i < W * H; i++) {
+void sgClear() {
+  for (int i = 0; i < W * H+1; i++) {
     fBuffer[i] = clearColor;
+    zBuffer[i] = zClear;
   }
 }
 

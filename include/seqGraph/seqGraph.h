@@ -7,12 +7,12 @@
 /// Draws the framebuffer.
 void sgDrawBuffer(void);
 
-/// Set the framebuffer color.
-void sgSetClearColor(Color c);
+/// Set the framebuffer color and the z-index value for 
+/// the zBuffer.
+void sgSetClearColor(Color color, f32 zIndex);
 
-/// Clear the frambuffer color.
-void sgClearColor(void);
-void sgClearZBuffer(void);
+/// Clear the frambuffer and zBuffer.
+void sgClear(void);
 
 /// Sets pixel at coordinate (x,y) to Color.
 void sgPokePixel(u32 x, u32 y, Color c);
