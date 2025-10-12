@@ -74,9 +74,9 @@ void getBarycentricCoordinates(vec3 dest, vec3 A, vec3 B, vec3 C, vec2 D) {
   f32 beta = areaOfTriangle(A, D3, C);
   f32 gamma = areaOfTriangle(C, B, D3);
 
-  dest[0] = alpha / totalArea;
+  dest[2] = alpha / totalArea;
   dest[1] = beta / totalArea;
-  dest[2] = gamma / totalArea;
+  dest[0] = gamma / totalArea;
 }
 
 f32 areaOfTriangle(vec3 A, vec3 B, vec3 C) {

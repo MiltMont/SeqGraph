@@ -450,9 +450,9 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
   }
 
   for (u32 i = 0; i < count - 2; i = i+3){
-    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]]. position[2]};
-    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]]. position[2]};
-    vec3 c = {vertex[indices[i+2]].position[0], vertex[indices[i+2]].position[1], vertex[indices[i+2]]. position[2]};
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]].position[2]};
+    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]].position[2]};
+    vec3 c = {vertex[indices[i+2]].position[0], vertex[indices[i+2]].position[1], vertex[indices[i+2]].position[2]};
   
     LOGV3("A",a);
     LOGV3("B",b);
