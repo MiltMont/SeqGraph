@@ -39,29 +39,12 @@ void sgClear() {
 
 void sgPokePixel(u32 x, u32 y, Color c) {
   int dest = W * y + x;
-  if (dest < W * H && dest > 0) {
-    // LOG("Drawing at: (%d, %d)\n", x, y);
-    fBuffer[dest] = c;
-  } else if (dest == W * H) {
-    LOG("Drawing at: (%d, %d)\n", x, y);
-    fBuffer[dest - 1] = c;
-  } else if (dest == 0) {
-    LOG("Drawing at: (%d, %d)\n", x, y);
-    fBuffer[0] = c;
-  } else {
-    LOG("Out of bounds: %d\n", dest);
-  }
+  fBuffer[dest] = c;
 }
 
 void sgPokeBuffer(u32 x, u32 y, f32 z) {
   int dest = W * y + x;
-
-  if (dest <= W * H && dest > 0) {
-    zBuffer[dest- 1] = z;
-  } 
-   else {
-    LOG("Out of bounds: %d\n", dest);
-  }
+  zBuffer[dest] = z;
 }
 
 bool shouldDraw(u32 x, u32 y, f32 z) {
@@ -527,7 +510,7 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       // Check if fragment is in bounds.
-      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] >= 0 ) {
+      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] > 0 ) {
 
         vec3 coords;
 
