@@ -22,13 +22,13 @@ int main(int argc, char *argv[]) {
   Vertex cubePoints[] = {
 
   // Bottom
-  {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}},
+  {.position = {0.0, 0.0, 0.0}, .color = {1.0, 1.0, 0.0}},
   {.position = {0.0, 0.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
   {.position = {1.0, 0.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
   {.position = {1.0, 0.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 
 
   // Top
-  {.position = {0.0, 1.0, 0.0}, .color = {0.0, 0.0, 0.0}},
+  {.position = {0.0, 1.0, 0.0}, .color = {1.0, 1.0, 0.0}},
   {.position = {0.0, 1.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
   {.position = {1.0, 1.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
   {.position = {1.0, 1.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 

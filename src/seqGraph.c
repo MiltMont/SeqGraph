@@ -510,13 +510,14 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       // Check if fragment is in bounds.
-      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] > 0 ) {
+      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] >= 0 ) {
 
         vec3 coords;
 
         // Interpolate z-index. 
         getBarycentricCoordinates(coords, outA, outB, outC, current);
         f32 zIndex = outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
+        LOGV3("BARYCENTRIC", coords);
 
         if (shouldDraw(current[0], current[1], zIndex)) {
           // Update z-index
@@ -536,8 +537,6 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
           LOG("zIndex={%f}", zIndex);
           sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
         }
-
-
       }
 
     }
