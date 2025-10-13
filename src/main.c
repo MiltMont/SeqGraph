@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
 
   while (1) {
-    timer += 0.5;
+    timer += 1;
     sgClear();
 
     OSW_Poll();
