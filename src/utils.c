@@ -6,6 +6,7 @@
 #include <seqGraph/trx.h>
 #include <seqGraph/constants.h>
 
+// TODO: FInish implementing this!!!
 bool shouldClip(vec3 point, f32 FOV, f32 n, f32 f) {
   LOGV3("Clipping:", point);
   f32 fovRad = FOV * (PI/180);

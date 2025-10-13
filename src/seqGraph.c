@@ -389,8 +389,8 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
 
 void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
 
+  rotateX(in, buffer[0]);
   rotateY(in, buffer[0]);
-  rotateZ(in, buffer[0]);
 
   vec4 tmp = {in[0], in[1], in[2] + 5, 1.0};
   perspectiveMatrix(tmp);
@@ -457,8 +457,62 @@ void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 indices[]
   }
 }
 
-void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {}
-void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {}
+void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {
+}
+
+void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {
+  LOG("Starting indexed line drawing\n", 0);
+
+  if (count < 2) {
+    return;
+  }
+
+  for (u32 i = 0; i < count - 1; i = i + 2) {
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]].position[2]};
+    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]].position[2]};
+  
+    Buffer bufA = {globalBuffer[0]};
+    Buffer bufB = {globalBuffer[0]};
+  
+    vec4 outA; 
+    vec4 outB; 
+  
+    __defaultVertShader(outA, a, globalBuffer);
+    __defaultVertShader(outB, b, globalBuffer);
+    
+    perspectiveCorrection(outA);
+    perspectiveCorrection(outB);
+
+    // Clipping
+    if (shouldClip(outA, fov, near, far)) {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+
+    if (shouldClip(outB, fov, near, far)) {
+      LOG("Clipped point (%f, %f)", outB[0], outB[1]);
+      break;
+    }
+
+    viewportTransformation(&outA[0], &outA[1]);
+    viewportTransformation(&outB[0], &outB[1]);
+
+    vec2 rasterA = {outA[0], outA[1]};
+    vec2 rasterB = {outB[0], outB[1]};
+
+    /// Rasterization
+    Fragment fragments[W * H];
+    int size = _rasterizeLine(outA[0], outA[1], outB[0], outB[1], fragments);
+
+    LOG("Completed rasterization stage.\n\n", 0);
+    LOG("%d rasterized fragments\n", size);
+
+    for (int i = 0; i < size; i++) {
+      sgPokePixel(fragments[i][0], fragments[i][1], 0xffffff);
+    }
+
+  }
+}
 
 void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
   LOG("Starting indexed triangle drawing\n", 0);
@@ -504,7 +558,7 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOGV4("C", outC);
 
     // Clipping
-    if (shouldClip(outA, 45, 0.01, 100)) {
+    if (shouldClip(outA, fov, near, far)) {
       LOG("Clipped point (%f, %f)", outA[0], outA[1]);
       break;
     }
