@@ -208,31 +208,20 @@ void mat4_mul(mat4 dest, const mat4 m1, const mat4 m2) {
 
 f32 vec4_normalize(vec4 v) { return 0; }
 
-f32 *mat4Scale(mat4 m, vec3 scaling) {
-  mat4 scalingMatrix = {{scaling[0], 0, 0, 0},
-                        {0, scaling[1], 0, 0},
-                        {0, 0, scaling[2], 0},
-                        {0, 0, 0, 1}};
+// f32 *mat4Scale(mat4 m, vec3 scaling) {
+//   mat4 scalingMatrix = {{scaling[0], 0, 0, 0},
+//                         {0, scaling[1], 0, 0},
+//                         {0, 0, scaling[2], 0},
+//                         {0, 0, 0, 1}};
 
-  vec3 result;
+//   vec3 result;
 
-  vec3_mat3Mul(result, m, scaling);
-  return result;
-}
+//   vec3_mat3Mul(result, m, scaling);
+//   return result;
+// }
 
 f32 *mat4Rotate(mat4 m, vec3 direction, u32 angle) {}
 
-f32 *mat4Translate(mat4 m, vec3 translation) {
-  mat4 translationMatrix = {{1, 0, 0, translation[0]},
-                            {0, 1, 0, translation[0]},
-                            {0, 0, 1, translation[0]},
-                            {0, 0, 0, 1}};
-
-  vec3 result;
-  vec3_mat3Mul(result, m, translation);
-
-  return result;
-}
 
 /// Spatial transformations
 void mat4_normalMat(mat3 dest, const mat4 m) {
