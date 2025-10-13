@@ -404,11 +404,11 @@ void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
 
 bool __defaultFragShader(vec4 color, u32 x, u32 y, Buffer buffer) {
   if (shouldDraw(x, y, buffer[1])) {
-    // Interpolate color. 
-    // interpolate(color, vertex[indices[i]].color, vertex[indices[i+1]].color,
-    //               vertex[indices[i+2]].color, coords);
-    color[0] = x * sin(buffer[0]/ 100); 
-    color[1] = y * cos(buffer[0] / 100); 
+    sgPokeBuffer(x,y,buffer[1]);
+    color[0] = buffer[2];
+    color[1] = buffer[3];
+    color[2] = buffer[4];
+    color[3] = 1.0;
     return true;
   } else {
     return false; 
@@ -551,35 +551,22 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
 
         // Interpolate z-index. 
         getBarycentricCoordinates(coords, outA, outB, outC, current);
+
         f32 zIndex = outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
         vec4 color; 
+        vec3 interpColor;
+        interpolate(interpColor, 
+          vertex[indices[i]].color,
+          vertex[indices[i+1]].color,
+          vertex[indices[i+2]].color, coords);
 
-        // [timer, zIndex, t1, t2, t3]
-        Buffer tempBuffer = {globalBuffer[0], zIndex, coords[0], coords[1], coords[2]}; 
+        // [timer, zIndex, interR, interG, interB]
+        Buffer tempBuffer = {globalBuffer[0], zIndex, interpColor[0], interpColor[1], interpColor[2]}; 
 
         if (__defaultFragShader(color, current[0], current[1], tempBuffer)) {
           Color finalColor = vec4ToColor(color);
           sgPokePixel(current[0], current[1], finalColor);
-          
         }
-        // if (shouldDraw(current[0], current[1], zIndex)) {
-        //   // Update z-index
-        //   sgPokeBuffer(current[0], current[1], zIndex); 
-        //   LOGV4("COLORA", vertex[indices[i]].color);
-        //   LOGV4("COLORB", vertex[indices[i+1]].color);
-        //   LOGV4("COLORC", vertex[indices[i+2]].color);
-
-        //   vec3 interpColor;
-        //   interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
-        //           vertex[indices[i+2]].color, coords);
-
-        //   vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
-        //   Color finalColor = vec4ToColor(alphaColor);
-        //   LOGV4("FINAL", alphaColor);
-
-        //   LOG("zIndex={%f}", zIndex);
-        //   sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
-        // }
       }
 
     }
