@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     return err;
   }
 
-  Color background = 0xffffff;
+  Color background = 0x0;
 
   sgSetClearColor(background, 100.0);
   sgViewport(0, 0, W, H);
@@ -22,16 +22,16 @@ int main(int argc, char *argv[]) {
   Vertex cubePoints[] = {
 
   // Bottom
-  {.position = {0.0, 0.0, 0.0}, .color = {1.0, 1.0, 0.0}},
-  {.position = {0.0, 0.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
-  {.position = {1.0, 0.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
+  {.position = {0.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}},
+  {.position = {0.0, 0.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
+  {.position = {1.0, 0.0, 1.0}, .color = {1.0, 1.0, 0.0}}, 
   {.position = {1.0, 0.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 
 
   // Top
   {.position = {0.0, 1.0, 0.0}, .color = {1.0, 1.0, 0.0}},
-  {.position = {0.0, 1.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
-  {.position = {1.0, 1.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
-  {.position = {1.0, 1.0, 0.0}, .color = {0.0, 0.0, 1.0}}, 
+  {.position = {0.0, 1.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
+  {.position = {1.0, 1.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
+  {.position = {1.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}}, 
   };
 
   u32 cubeIndices[] = {
@@ -49,11 +49,26 @@ int main(int argc, char *argv[]) {
     1, 2, 3, // bottom
   };
 
+  u32 cubeEdgeIndices[] = {
+    0,1, 
+    1, 2, 
+    2, 3, 
+    3, 0, 
+    0, 4, 
+    1, 5, 
+    2, 6, 
+    3, 7, 
+    4, 5, 
+    5, 6, 
+    6, 7, 
+    7, 4, 
+  };
+
   Vertex trianglePoints[] = {
-  {.position = {0.0, 0.0, 0.0}, .color = {0.0, 0.0, 0.0}},
-  {.position = {1.0, 0.0, 0.0}, .color = {1.0, 0.0, 0.0}}, 
-  {.position = {0.0, 1.0, 0.0}, .color = {0.0, 1.0, 0.0}}, 
-  {.position = {0.0, 0.0, 1.0}, .color = {0.0, 0.0, 1.0}}, 
+  {.position = {1.0, 1.0, 1.0}, .color = {1.0, 1.0, 0.0}},
+  {.position = {2.0, 1.0, 1.0}, .color = {1.0, 0.0, 0.0}}, 
+  {.position = {1.0, 2.0, 1.0}, .color = {0.0, 1.0, 0.0}}, 
+  {.position = {1.0, 1.0, 2.0}, .color = {0.0, 0.0, 1.0}}, 
   };
 
   u32 indices[] = {
@@ -66,18 +81,16 @@ int main(int argc, char *argv[]) {
 
 
   while (1) {
-    timer += 0.01;
+    timer += 1;
     sgClear();
 
     OSW_Poll();
+    sgSetVertexBytes(timer, 0);
     sgDrawIndexedVertex(sgTriangle, cubePoints, cubeIndices, 36);
+    sgDrawIndexedVertex(sgLine, cubePoints, cubeEdgeIndices, 24);
     sgDrawBuffer();
     OSW_VideoSwapBuffers();
-
-    for (int i = 0; i < 8; i++) {
-      rotateX(cubePoints[i].position, 1);
-      rotateZ(cubePoints[i].position, 1);
-    }
+  
   }
 
   return 0;

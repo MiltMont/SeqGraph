@@ -69,15 +69,18 @@ f32 *vec3_lerp(vec3 dest, const vec3 v, const vec3 u, f32 a) {
 };
 
 f32 vec3_dot(const vec3 v, const vec3 u) {
-  f32 sum = v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
-
-  return sum;
+  return v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
 }
 
 void vec3Cross(vec3 dest, const vec3 v, const vec3 u) {
-  dest[0] = v[1] * u[2] - v[2] * u[1];
-  dest[1] = v[2] * u[0] - v[0] * u[2];
-  dest[2] = v[0] * u[1] - v[1] * u[0];
+  vec3 temp; 
+  temp[0] = v[1] * u[2] - v[2] * u[1];
+  temp[1] = v[2] * u[0] - v[0] * u[2];
+  temp[2] = v[0] * u[1] - v[1] * u[0];
+
+  dest[0] = temp[0];
+  dest[1] = temp[1];
+  dest[2] = temp[2];
 }
 
 f32 *vec3_cross(vec3 dest, const vec3 v, const vec3 u) {
@@ -208,31 +211,20 @@ void mat4_mul(mat4 dest, const mat4 m1, const mat4 m2) {
 
 f32 vec4_normalize(vec4 v) { return 0; }
 
-f32 *mat4Scale(mat4 m, vec3 scaling) {
-  mat4 scalingMatrix = {{scaling[0], 0, 0, 0},
-                        {0, scaling[1], 0, 0},
-                        {0, 0, scaling[2], 0},
-                        {0, 0, 0, 1}};
+// f32 *mat4Scale(mat4 m, vec3 scaling) {
+//   mat4 scalingMatrix = {{scaling[0], 0, 0, 0},
+//                         {0, scaling[1], 0, 0},
+//                         {0, 0, scaling[2], 0},
+//                         {0, 0, 0, 1}};
 
-  vec3 result;
+//   vec3 result;
 
-  vec3_mat3Mul(result, m, scaling);
-  return result;
-}
+//   vec3_mat3Mul(result, m, scaling);
+//   return result;
+// }
 
 f32 *mat4Rotate(mat4 m, vec3 direction, u32 angle) {}
 
-f32 *mat4Translate(mat4 m, vec3 translation) {
-  mat4 translationMatrix = {{1, 0, 0, translation[0]},
-                            {0, 1, 0, translation[0]},
-                            {0, 0, 1, translation[0]},
-                            {0, 0, 0, 1}};
-
-  vec3 result;
-  vec3_mat3Mul(result, m, translation);
-
-  return result;
-}
 
 /// Spatial transformations
 void mat4_normalMat(mat3 dest, const mat4 m) {
@@ -253,15 +245,22 @@ void mat4_scale(mat4 m, vec3 v) {}
 void rotateZ(vec3 point, f32 angle) { 
   f32 radAngle = angle * (PI / 180);
 
-  point[0] = point[0] * cos(radAngle) - point[1] * sin(radAngle); 
-  point[1] = point[0] * sin(radAngle) + point[1] * cos(radAngle); 
+  f32 x = point[0] * cos(radAngle) - point[1] * sin(radAngle); 
+  f32 y = point[0] * sin(radAngle) + point[1] * cos(radAngle); 
+
+  point[0] = x; 
+  point[1] = y; 
 };
 
 void rotateY(vec3 point, f32 angle) { 
   f32 radAngle = angle * (PI / 180);
 
-  point[0] = point[0] * cos(radAngle) + point[2] * sin(radAngle); 
-  point[2] = point[2] * cos(radAngle) - point[0] * sin(radAngle);
+  f32 x = point[0] * cos(radAngle) + point[2] * sin(radAngle); 
+  f32 z = point[2] * cos(radAngle) - point[0] * sin(radAngle);
+
+  point[0] = x; 
+  point[2] = z;
+
 };
 
 void rotateX(vec3 point, f32 angle) { 

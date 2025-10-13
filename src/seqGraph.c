@@ -20,6 +20,12 @@ Color fBuffer[W * H + 1];
 f32 zBuffer[W * H + 1];
 Color clearColor;
 f32 zClear; 
+Buffer globalBuffer = {0}; 
+
+void sgSetVertexBytes(f32 value, int index) {
+  globalBuffer[index] = value;
+  LOG("BUFFER[0]=%f\n", globalBuffer[index]);
+}
 
 void sgDrawBuffer(void) { OSW_VideoDrawBuffer(fBuffer, W, H); }
 
@@ -34,6 +40,7 @@ void sgClear() {
   for (int i = 0; i < W * H+1; i++) {
     fBuffer[i] = clearColor;
     zBuffer[i] = zClear;
+    globalBuffer[0] = 0;
   }
 }
 
@@ -380,6 +387,34 @@ void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer) {
   out[3] = in[3];
 }
 
+void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
+
+  rotateX(in, buffer[0]);
+  rotateY(in, buffer[0]);
+
+  vec4 tmp = {in[0], in[1], in[2] + 5, 1.0};
+  perspectiveMatrix(tmp);
+
+
+  out[0] = tmp[0];
+  out[1] = tmp[1];
+  out[2] = tmp[2];
+  out[3] = tmp[3];
+}
+
+bool __defaultFragShader(vec4 color, u32 x, u32 y, Buffer buffer) {
+  if (shouldDraw(x, y, buffer[1])) {
+    sgPokeBuffer(x,y,buffer[1]);
+    color[0] = buffer[2];
+    color[1] = buffer[3];
+    color[2] = buffer[4];
+    color[3] = 1.0;
+    return true;
+  } else {
+    return false; 
+  }
+}
+
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer) {
   color[0] = 0.0;
   color[1] = 0.0;
@@ -422,8 +457,62 @@ void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 indices[]
   }
 }
 
-void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {}
-void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {}
+void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {
+}
+
+void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {
+  LOG("Starting indexed line drawing\n", 0);
+
+  if (count < 2) {
+    return;
+  }
+
+  for (u32 i = 0; i < count - 1; i = i + 2) {
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]].position[2]};
+    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]].position[2]};
+  
+    Buffer bufA = {globalBuffer[0]};
+    Buffer bufB = {globalBuffer[0]};
+  
+    vec4 outA; 
+    vec4 outB; 
+  
+    __defaultVertShader(outA, a, globalBuffer);
+    __defaultVertShader(outB, b, globalBuffer);
+    
+    perspectiveCorrection(outA);
+    perspectiveCorrection(outB);
+
+    // Clipping
+    if (shouldClip(outA, fov, near, far)) {
+      LOG("Clipped point (%f, %f)", outA[0], outA[1]);
+      break;
+    }
+
+    if (shouldClip(outB, fov, near, far)) {
+      LOG("Clipped point (%f, %f)", outB[0], outB[1]);
+      break;
+    }
+
+    viewportTransformation(&outA[0], &outA[1]);
+    viewportTransformation(&outB[0], &outB[1]);
+
+    vec2 rasterA = {outA[0], outA[1]};
+    vec2 rasterB = {outB[0], outB[1]};
+
+    /// Rasterization
+    Fragment fragments[W * H];
+    int size = _rasterizeLine(outA[0], outA[1], outB[0], outB[1], fragments);
+
+    LOG("Completed rasterization stage.\n\n", 0);
+    LOG("%d rasterized fragments\n", size);
+
+    for (int i = 0; i < size; i++) {
+      sgPokePixel(fragments[i][0], fragments[i][1], 0xffffff);
+    }
+
+  }
+}
 
 void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
   LOG("Starting indexed triangle drawing\n", 0);
@@ -441,18 +530,18 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOGV3("B",b);
     LOGV3("C",c);
 
-    Buffer bufA = {0};
-    Buffer bufB = {0};
-    Buffer bufC = {0};
+    Buffer bufA = {globalBuffer[0]};
+    Buffer bufB = {globalBuffer[0]};
+    Buffer bufC = {globalBuffer[0]};
 
     vec4 outA; 
     vec4 outB; 
     vec4 outC; 
 
     // Vertex shader stage
-    __default_vert_shader(outA, a, bufA);
-    __default_vert_shader(outB, b, bufB);
-    __default_vert_shader(outC, c, bufC);
+    __defaultVertShader(outA, a, globalBuffer);
+    __defaultVertShader(outB, b, globalBuffer);
+    __defaultVertShader(outC, c, globalBuffer);
 
     LOG("Vertex shader results: \n", 0);
 
@@ -469,7 +558,7 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOGV4("C", outC);
 
     // Clipping
-    if (shouldClip(outA, 45, 0.01, 100)) {
+    if (shouldClip(outA, fov, near, far)) {
       LOG("Clipped point (%f, %f)", outA[0], outA[1]);
       break;
     }
@@ -516,26 +605,21 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
 
         // Interpolate z-index. 
         getBarycentricCoordinates(coords, outA, outB, outC, current);
+
         f32 zIndex = outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
-        LOGV3("BARYCENTRIC", coords);
+        vec4 color; 
+        vec3 interpColor;
+        interpolate(interpColor, 
+          vertex[indices[i]].color,
+          vertex[indices[i+1]].color,
+          vertex[indices[i+2]].color, coords);
 
-        if (shouldDraw(current[0], current[1], zIndex)) {
-          // Update z-index
-          sgPokeBuffer(current[0], current[1], zIndex); 
-          LOGV4("COLORA", vertex[indices[i]].color);
-          LOGV4("COLORB", vertex[indices[i+1]].color);
-          LOGV4("COLORC", vertex[indices[i+2]].color);
+        // [timer, zIndex, interR, interG, interB]
+        Buffer tempBuffer = {globalBuffer[0], zIndex, interpColor[0], interpColor[1], interpColor[2]}; 
 
-          vec3 interpColor;
-          interpolate(interpColor, vertex[indices[i]].color, vertex[indices[i+1]].color,
-                  vertex[indices[i+2]].color, coords);
-
-          vec4 alphaColor = {interpColor[0], interpColor[1], interpColor[2], 1.0};
-          Color finalColor = vec4ToColor(alphaColor);
-          LOGV4("FINAL", alphaColor);
-
-          LOG("zIndex={%f}", zIndex);
-          sgPokePixel(fragments[j][0], fragments[j][1], finalColor);
+        if (__defaultFragShader(color, current[0], current[1], tempBuffer)) {
+          Color finalColor = vec4ToColor(color);
+          sgPokePixel(current[0], current[1], finalColor);
         }
       }
 

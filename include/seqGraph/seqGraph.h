@@ -4,6 +4,7 @@
 #include <seqGraph/types.h>
 #include <seqGraph/utils.h>
 
+void sgSetVertexBytes(f32 value, int index);
 /// Draws the framebuffer.
 void sgDrawBuffer(void);
 
@@ -36,7 +37,10 @@ void sgDrawVertex(enum PrimitiveType type, Vertex vertex[], u32 count);
 void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 index[], u32 count);
 
 void __default_vert_shader(vec4 out, vec3 vert, Buffer buffer);
+void __defaultVertShader(vec4 out, vec3 in, Buffer buffer);
+
 bool __default_frag_shader(vec4 color, f32 x_r, f32 y_r, Buffer buffer);
+bool __defaultFragShader(vec4 color, u32 x, u32 y, Buffer buffer);
 
 /// Utility functions
 void viewportTransformation(f32 *x, f32 *y);
@@ -70,5 +74,7 @@ int _rasterizeLine(int x0, int y0, int x1, int y1, Fragment dest[]);
 /// @param dest
 /// @return
 int _rasterizeTriangle(vec2 x, vec2 y, vec2 z, Fragment dest[]);
+
+void perspectiveMatrix(vec4 in);
 
 #endif // !__SG_H__

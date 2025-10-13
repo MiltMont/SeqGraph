@@ -6,6 +6,7 @@
 #include <seqGraph/trx.h>
 #include <seqGraph/constants.h>
 
+// TODO: FInish implementing this!!!
 bool shouldClip(vec3 point, f32 FOV, f32 n, f32 f) {
   LOGV3("Clipping:", point);
   f32 fovRad = FOV * (PI/180);
@@ -77,9 +78,6 @@ void getBarycentricCoordinates(vec3 dest, vec3 A, vec3 B, vec3 C, vec2 D) {
   dest[2] = alpha / totalArea;
   dest[1] = beta / totalArea;
   dest[0] = gamma / totalArea;
-  if(dest[2] + dest[1] + dest[0] == 1) {
-    LOG("GOOD", 0);
-  }
 }
 
 f32 areaOfTriangle(vec3 A, vec3 B, vec3 C) {
