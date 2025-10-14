@@ -2,10 +2,10 @@
 #include <seqGraph/debug.h>
 #include <seqGraph/uniforms.h>
 
-void makeProjectionMatrix(mat4 dest, f32 fov, f32 far, f32 near) {
-  f32 S = 1 / tan((fov / 2) * (3.141516 / 180));
-  f32 a = (far / (far - near));
-  f32 b = -((far * near) / (far - near));
+void makeProjectionMatrix(mat4 dest, f32 FOV, f32 FAR, f32 NEAR) {
+  f32 S = 1 / tan((FOV / 2) * (3.141516 / 180));
+  f32 a = (FAR / (FAR - NEAR));
+  f32 b = -((FAR * NEAR) / (FAR - NEAR));
 
   dest[0][0] = S;
   dest[1][1] = S / (float)(W / H);

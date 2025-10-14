@@ -40,10 +40,10 @@ void mat4_translate(mat4 m, vec3 v);
 void mat4_rotate(mat4 m, vec3 v, float angle);
 void mat4_scale(mat4 m, vec3 v);
 
-void mat4_ortho(mat4 m, float left, float right, float bottom, float top,
-                float near, float far);
-void mat4_perspective(mat4 m, float fovy, float aspect, float znear,
-                      float zfar);
+// void mat4_ortho(mat4 m, float left, float right, float bottom, float top,
+//                 float near, float far);
+// void mat4_perspective(mat4 m, float fovy, float aspect, float znear,
+//                       float zfar);
 
 /// New functions
 void vec3Cross(vec3 dest, const vec3 v, const vec3 u);

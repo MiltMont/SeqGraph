@@ -2,10 +2,10 @@
 
 #include <libosw/osw.h>
 #include <math.h>
+#include <seqGraph/constants.h>
 #include <seqGraph/debug.h>
 #include <seqGraph/trx.h>
 #include <seqGraph/uniforms.h>
-#include <seqGraph/constants.h>
 #include <stdlib.h>
 
 // Local variables
@@ -19,8 +19,8 @@ mat4 projectionMatrix;
 Color fBuffer[W * H + 1];
 f32 zBuffer[W * H + 1];
 Color clearColor;
-f32 zClear; 
-Buffer globalBuffer = {0}; 
+f32 zClear;
+Buffer globalBuffer = {0};
 
 void sgSetVertexBytes(f32 value, int index) {
   globalBuffer[index] = value;
@@ -37,7 +37,7 @@ void sgSetClearColor(Color color, f32 zIndex) {
 }
 
 void sgClear() {
-  for (int i = 0; i < W * H+1; i++) {
+  for (int i = 0; i < W * H + 1; i++) {
     fBuffer[i] = clearColor;
     zBuffer[i] = zClear;
     globalBuffer[0] = 0;
@@ -55,7 +55,7 @@ void sgPokeBuffer(u32 x, u32 y, f32 z) {
 }
 
 bool shouldDraw(u32 x, u32 y, f32 z) {
-  int dest = W * y + x; 
+  int dest = W * y + x;
   return zBuffer[dest] > z ? true : false;
 }
 
@@ -395,7 +395,6 @@ void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
   vec4 tmp = {in[0], in[1], in[2] + 5, 1.0};
   perspectiveMatrix(tmp);
 
-
   out[0] = tmp[0];
   out[1] = tmp[1];
   out[2] = tmp[2];
@@ -404,14 +403,14 @@ void __defaultVertShader(vec4 out, vec3 in, Buffer buffer) {
 
 bool __defaultFragShader(vec4 color, u32 x, u32 y, Buffer buffer) {
   if (shouldDraw(x, y, buffer[1])) {
-    sgPokeBuffer(x,y,buffer[1]);
+    sgPokeBuffer(x, y, buffer[1]);
     color[0] = buffer[2];
     color[1] = buffer[3];
     color[2] = buffer[4];
     color[3] = 1.0;
     return true;
   } else {
-    return false; 
+    return false;
   }
 }
 
@@ -443,7 +442,8 @@ void viewportTransformation(f32 *x, f32 *y) {
 /// @param vertex An array of vertices.
 /// @param index An array of indices.
 /// @param count The size of the provided index array.
-void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 indices[], u32 count) {
+void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[],
+                         u32 indices[], u32 count) {
   switch (type) {
   case sgPoint:
     _sgDrawIndexedPoints(vertex, indices, count);
@@ -457,8 +457,7 @@ void sgDrawIndexedVertex(enum PrimitiveType type, Vertex vertex[], u32 indices[]
   }
 }
 
-void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {
-}
+void _sgDrawIndexedPoints(Vertex vertex[], u32 indices[], u32 count) {}
 
 void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {
   LOG("Starting indexed line drawing\n", 0);
@@ -468,18 +467,21 @@ void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {
   }
 
   for (u32 i = 0; i < count - 1; i = i + 2) {
-    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]].position[2]};
-    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]].position[2]};
-  
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1],
+              vertex[indices[i]].position[2]};
+    vec3 b = {vertex[indices[i + 1]].position[0],
+              vertex[indices[i + 1]].position[1],
+              vertex[indices[i + 1]].position[2]};
+
     Buffer bufA = {globalBuffer[0]};
     Buffer bufB = {globalBuffer[0]};
-  
-    vec4 outA; 
-    vec4 outB; 
-  
+
+    vec4 outA;
+    vec4 outB;
+
     __defaultVertShader(outA, a, globalBuffer);
     __defaultVertShader(outB, b, globalBuffer);
-    
+
     perspectiveCorrection(outA);
     perspectiveCorrection(outB);
 
@@ -510,7 +512,6 @@ void _sgDrawIndexedLines(Vertex vertex[], u32 indices[], u32 count) {
     for (int i = 0; i < size; i++) {
       sgPokePixel(fragments[i][0], fragments[i][1], 0xffffff);
     }
-
   }
 }
 
@@ -518,25 +519,30 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
   LOG("Starting indexed triangle drawing\n", 0);
 
   if (count < 3) {
-    return; 
+    return;
   }
 
-  for (u32 i = 0; i < count - 2; i = i+3){
-    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1], vertex[indices[i]].position[2]};
-    vec3 b = {vertex[indices[i+1]].position[0], vertex[indices[i+1]].position[1], vertex[indices[i+1]].position[2]};
-    vec3 c = {vertex[indices[i+2]].position[0], vertex[indices[i+2]].position[1], vertex[indices[i+2]].position[2]};
-  
-    LOGV3("A",a);
-    LOGV3("B",b);
-    LOGV3("C",c);
+  for (u32 i = 0; i < count - 2; i = i + 3) {
+    vec3 a = {vertex[indices[i]].position[0], vertex[indices[i]].position[1],
+              vertex[indices[i]].position[2]};
+    vec3 b = {vertex[indices[i + 1]].position[0],
+              vertex[indices[i + 1]].position[1],
+              vertex[indices[i + 1]].position[2]};
+    vec3 c = {vertex[indices[i + 2]].position[0],
+              vertex[indices[i + 2]].position[1],
+              vertex[indices[i + 2]].position[2]};
+
+    LOGV3("A", a);
+    LOGV3("B", b);
+    LOGV3("C", c);
 
     Buffer bufA = {globalBuffer[0]};
     Buffer bufB = {globalBuffer[0]};
     Buffer bufC = {globalBuffer[0]};
 
-    vec4 outA; 
-    vec4 outB; 
-    vec4 outC; 
+    vec4 outA;
+    vec4 outB;
+    vec4 outC;
 
     // Vertex shader stage
     __defaultVertShader(outA, a, globalBuffer);
@@ -594,42 +600,43 @@ void _sgDrawIndexedTriangles(Vertex vertex[], u32 indices[], u32 count) {
     LOG("Completed rasterization stage.\n\n", 0);
     LOG("%d rasterized fragments\n", size);
 
-    // Iterating over rasterized fragments. 
+    // Iterating over rasterized fragments.
     for (u32 j = 0; j < size; j++) {
       vec2 current = {(float)fragments[j][0], (float)fragments[j][1]};
 
       // Check if fragment is in bounds.
-      if (W * current[1] + current[0] <= W * H && W * current[1] + current[0] >= 0 ) {
+      if (W * current[1] + current[0] <= W * H &&
+          W * current[1] + current[0] >= 0) {
 
         vec3 coords;
 
-        // Interpolate z-index. 
+        // Interpolate z-index.
         getBarycentricCoordinates(coords, outA, outB, outC, current);
 
-        f32 zIndex = outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
-        vec4 color; 
+        f32 zIndex =
+            outA[2] * coords[0] + outB[2] * coords[1] + outC[2] * coords[2];
+        vec4 color;
         vec3 interpColor;
-        interpolate(interpColor, 
-          vertex[indices[i]].color,
-          vertex[indices[i+1]].color,
-          vertex[indices[i+2]].color, coords);
+        interpolate(interpColor, vertex[indices[i]].color,
+                    vertex[indices[i + 1]].color, vertex[indices[i + 2]].color,
+                    coords);
 
         // [timer, zIndex, interR, interG, interB]
-        Buffer tempBuffer = {globalBuffer[0], zIndex, interpColor[0], interpColor[1], interpColor[2]}; 
+        Buffer tempBuffer = {globalBuffer[0], zIndex, interpColor[0],
+                             interpColor[1], interpColor[2]};
 
         if (__defaultFragShader(color, current[0], current[1], tempBuffer)) {
           Color finalColor = vec4ToColor(color);
           sgPokePixel(current[0], current[1], finalColor);
         }
       }
-
     }
   }
 }
 
-void perspectiveMatrix(vec4 in)  {
+void perspectiveMatrix(vec4 in) {
   in[0] = S * in[0];
   in[1] = S * in[1];
-  in[2] =  in[2] * (far / (far-near)) - (far*near)/(far-near);
-  in[3] =  in[2];
+  in[2] = in[2] * (far / (far - near)) - (far * near) / (far - near);
+  in[3] = in[2];
 }
